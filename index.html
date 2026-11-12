@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Azey — l'application (démo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14162A;--navy2:#1F2240;--orange:#EB4F33;--cream:#F6F4EF;--grey:#6B6F80;--line:#E6E2D9;--green:#2E8B57;--white:#fff;--soft:#FBFAF7}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:'Poppins',system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--navy);background:#ECE8DF;overflow:hidden}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+.stage{height:100%;display:flex;align-items:center;justify-content:center;gap:56px;padding:24px}
+/* ---------- panneau de présentation ---------- */
+.pitch{width:520px;max-height:100%;overflow:auto;padding:6px 8px 24px 4px;scrollbar-width:thin}
+.pitch h1{font-size:44px;line-height:1.05;margin:14px 0 8px;font-weight:800;letter-spacing:-1px}
+.pitch h1 b{color:var(--orange)}
+.pitch .lead{font-size:16px;color:#3a3d52;margin:0 0 18px;line-height:1.55}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:26px;letter-spacing:-1px}
+.tile{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center}
+.tile svg{width:20px;height:22px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 20px}
+.step{background:#fff;border-radius:16px;padding:14px;border:1px solid var(--line)}
+.step b{display:block;font-size:28px;color:var(--orange);line-height:1}
+.step span{font-size:13px;color:#3a3d52;display:block;margin-top:6px}
+.pitch h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin:22px 0 10px;font-weight:700}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feat button{display:flex;gap:10px;align-items:flex-start;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;transition:.15s}
+.feat button:hover{border-color:var(--orange);transform:translateY(-1px)}
+.feat i{font-style:normal;font-size:20px;line-height:1.1}
+.feat b{display:block;font-size:13px}
+.feat small{display:block;font-size:11.5px;color:var(--grey);line-height:1.35;margin-top:1px}
+.qrcard{display:flex;gap:16px;align-items:center;background:var(--navy);color:#fff;border-radius:20px;padding:16px;margin-top:8px}
+.qrcard .qr{width:136px;height:136px;background:#fff;border-radius:14px;padding:8px;flex:none;display:grid;place-items:center}
+.qrcard .qr svg{width:100%;height:100%;display:block}
+.qrcard b{font-size:17px;display:block;margin-bottom:4px}
+.qrcard p{margin:0;font-size:12.5px;color:#C9CCD8;line-height:1.5}
+.biz{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.biz div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:12.5px;color:#3a3d52}
+.biz b{display:block;color:var(--navy);font-size:15px}
+.note{font-size:11.5px;color:var(--grey);line-height:1.5;margin-top:14px}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px;margin:2px 0 6px}
+.seg button{padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--grey)}
+.seg button.on{background:var(--navy);color:#fff}
+/* ---------- téléphone ---------- */
+.device{width:394px;height:828px;flex:none;border-radius:54px;background:#0b0c18;padding:10px;box-shadow:0 40px 80px -20px rgba(20,22,42,.45),0 0 0 2px #2a2d48 inset;position:relative}
+.screen{position:relative;width:100%;height:100%;border-radius:44px;background:var(--cream);overflow:hidden;overflow:clip;display:flex;flex-direction:column}
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:104px;height:28px;border-radius:20px;background:#0b0c18;z-index:60}
+.status{position:relative;z-index:45;height:46px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 30px 6px;font-size:13px;font-weight:600;z-index:5}
+.status .r{display:flex;gap:5px;align-items:center;font-size:11px}
+#view{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;position:relative}
+#view::-webkit-scrollbar{display:none}
+.tabbar{flex:none;height:84px;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:flex-start;padding:8px 6px 0}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:500;color:var(--grey);width:64px;position:relative}
+.tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--orange);font-weight:600}
+.tab .dot{position:absolute;top:-2px;right:14px;background:var(--orange);color:#fff;font-size:9.5px;min-width:16px;height:16px;border-radius:9px;display:grid;place-items:center;font-weight:700}
+.fab{width:56px;height:56px;border-radius:18px;background:var(--orange);display:grid;place-items:center;margin-top:-18px;box-shadow:0 10px 22px -6px rgba(235,79,51,.6)}
+.fab svg{width:28px;height:28px;stroke:#fff;stroke-width:2.6;fill:none;stroke-linecap:round}
+/* ---------- briques ---------- */
+.pad{padding:0 18px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 8px}
+.logo{display:flex;align-items:center;gap:7px;font-weight:800;font-size:21px;letter-spacing:-.8px}
+.logo .tile{width:30px;height:30px;border-radius:9px}.logo .tile svg{width:14px;height:16px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-size:12px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.chip.or{background:var(--orange);color:#fff;border-color:var(--orange)}
+.row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 18px 6px}
+.row::-webkit-scrollbar{display:none}
+h2.s{font-size:17px;font-weight:700;margin:18px 18px 8px;display:flex;justify-content:space-between;align-items:baseline;letter-spacing:-.2px}
+h2.s small{font-size:12px;color:var(--grey);font-weight:500}
+.card{background:#fff;border-radius:20px;border:1px solid var(--line);padding:14px;margin:0 18px 10px;position:relative}
+.card.tap{cursor:pointer;transition:.15s}.card.tap:active{transform:scale(.985)}
+.sort{display:flex;gap:12px}
+.emo{width:48px;height:48px;border-radius:15px;background:var(--cream);display:grid;place-items:center;font-size:24px;flex:none}
+.sort h4{margin:0;font-size:15px;font-weight:700;letter-spacing:-.2px;line-height:1.25}
+.meta{font-size:12px;color:var(--grey);margin-top:2px;line-height:1.45}
+.av{width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-size:11px;font-weight:700;border:2px solid #fff;margin-left:-8px}
+.av:first-child{margin-left:0}
+.avs{display:flex;align-items:center}
+.btns{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;padding:11px 14px;border-radius:14px;font-weight:600;font-size:13.5px;text-align:center;background:var(--orange);color:#fff}
+.btn.sec{background:var(--cream);color:var(--navy);border:1px solid var(--line)}
+.btn.dark{background:var(--navy);color:#fff}
+.btn.ghost{background:transparent;color:var(--grey);border:1px solid var(--line)}
+.btn.wide{display:block;width:100%;flex:none}
+.btn.sm{padding:8px 12px;font-size:12.5px;border-radius:12px;flex:none}
+.btn[disabled]{opacity:.45}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--cream);color:var(--navy)}
+.badge.or{background:rgba(235,79,51,.12);color:var(--orange)}
+.badge.gr{background:rgba(46,139,87,.12);color:var(--green)}
+.badge.nv{background:var(--navy);color:#fff}
+.compat{flex:none}
+.hero{margin:6px 18px 12px;background:var(--navy);color:#fff;border-radius:24px;padding:18px;position:relative;overflow:hidden}
+.hero h3{margin:0;font-size:21px;line-height:1.15;letter-spacing:-.4px}
+.hero p{margin:6px 0 0;font-size:12.5px;color:#C9CCD8;line-height:1.5}
+.hero .bg{position:absolute;right:-18px;top:-10px;width:130px;opacity:.12}
+.switch{width:46px;height:28px;border-radius:15px;background:#D4D1C9;position:relative;flex:none;transition:.2s}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch.on{background:var(--orange)}.switch.on::after{left:21px}
+.line{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.line:last-child{border-bottom:0}
+.line .grow{flex:1;min-width:0}
+.line b{font-size:14px;font-weight:600;display:block}
+.line small{font-size:12px;color:var(--grey);display:block;line-height:1.4}
+/* annonce */
+.ad{margin:0 18px 10px;border-radius:14px;background:#fff;border:1px dashed #D8D4CA;display:flex;align-items:center;gap:10px;padding:8px 10px}
+.ad .l{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:19px;background:#FFF1D6;flex:none}
+.ad b{font-size:12.5px;display:block;line-height:1.25}
+.ad small{font-size:10.5px;color:var(--grey)}
+.ad .x{margin-left:auto;font-size:11px;color:var(--grey);padding:4px 6px}
+/* notification push */
+.push{opacity:0;visibility:hidden;position:absolute;left:10px;right:10px;top:50px;z-index:70;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-radius:22px;padding:12px;box-shadow:0 18px 40px -10px rgba(20,22,42,.45);transform:translateY(-140%);transition:transform .45s cubic-bezier(.2,.9,.2,1),opacity .3s;border:1px solid var(--line)}
+.push.show{transform:none;opacity:1;visibility:visible}
+.push .h{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--grey);font-weight:500}
+.push .h .tile{width:22px;height:22px;border-radius:7px}.push .h .tile svg{width:11px;height:12px}
+.push p{margin:6px 0 8px;font-size:13.5px;font-weight:500;line-height:1.35}
+.toast{position:absolute;left:50%;bottom:98px;transform:translate(-50%,30px);background:var(--navy);color:#fff;padding:10px 16px;border-radius:14px;font-size:12.5px;font-weight:500;opacity:0;transition:.3s;z-index:80;max-width:320px;text-align:center;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+/* feuilles */
+.scrim{position:absolute;inset:0;background:rgba(20,22,42,.55);z-index:50;opacity:0;pointer-events:none;transition:.25s}
+.scrim.show{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--cream);border-radius:28px 28px 0 0;z-index:55;padding:10px 18px 28px;transform:translateY(105%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.9,.2,1),visibility 0s .35s;max-height:88%;overflow-y:auto}
+.sheet.show{transform:none;visibility:visible;transition:transform .35s cubic-bezier(.2,.9,.2,1)}
+.sheet .grab{width:40px;height:4px;border-radius:3px;background:#CFCBC1;margin:0 auto 14px}
+.sheet h3{margin:0 0 4px;font-size:20px;letter-spacing:-.3px}
+.sheet p.sub{margin:0 0 14px;font-size:13px;color:var(--grey);line-height:1.5}
+.full{position:absolute;inset:0;background:var(--cream);z-index:40;display:flex;flex-direction:column;transform:translateX(100%);visibility:hidden;transition:transform .3s ease,visibility 0s .3s}
+.full.show{transform:none;visibility:visible;transition:transform .3s ease}
+.full .bar{display:flex;align-items:center;gap:10px;padding:52px 14px 10px;flex:none}
+.full .bar .t{font-weight:700;font-size:16px;flex:1}
+.back{width:36px;height:36px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:18px}
+.full .body{flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:30px}
+.full .body::-webkit-scrollbar{display:none}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 18px}
+.act{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:9px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;text-align:center;line-height:1.15}
+.act i{font-style:normal;font-size:23px}
+.act.on{border-color:var(--orange);background:#FFF3F0}
+.prog{display:flex;gap:5px;padding:0 18px 12px}
+.prog i{flex:1;height:4px;border-radius:2px;background:#DAD6CC}.prog i.on{background:var(--orange)}
+.stepper{display:flex;align-items:center;gap:14px}
+.stepper button{width:36px;height:36px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:20px;font-weight:600}
+.stepper b{font-size:22px;min-width:24px;text-align:center}
+.mapwrap{margin:0 18px;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:#EFECE4;position:relative}
+.mapwrap svg{display:block;width:100%;height:auto}
+.pin{cursor:pointer}
+.qrframe{position:relative;margin:6px auto 14px;width:230px;height:230px;border-radius:24px;background:#0b0c18;overflow:hidden;display:grid;place-items:center}
+.qrframe::before,.qrframe::after{content:'';position:absolute;inset:26px;border:3px solid var(--orange);border-radius:16px;clip-path:polygon(0 0,28% 0,28% 3px,3px 3px,3px 28%,0 28%,0 0,100% 0,100% 28%,calc(100% - 3px) 28%,calc(100% - 3px) 3px,72% 3px,72% 0,100% 0,100% 100%,72% 100%,72% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 72%,100% 72%,100% 100%,0 100%,0 72%,3px 72%,3px calc(100% - 3px),28% calc(100% - 3px),28% 100%,0 100%)}
+.scanline{position:absolute;left:30px;right:30px;height:3px;background:var(--orange);box-shadow:0 0 14px var(--orange);animation:scan 1.6s ease-in-out infinite}
+@keyframes scan{0%{top:36px}50%{top:190px}100%{top:36px}}
+.bubble{max-width:78%;padding:9px 12px;border-radius:16px;font-size:13px;line-height:1.4;margin-bottom:6px}
+.bubble.in{background:#fff;border:1px solid var(--line);border-bottom-left-radius:5px}
+.bubble.out{background:var(--orange);color:#fff;margin-left:auto;border-bottom-right-radius:5px}
+.bubble small{display:block;font-size:10px;opacity:.7;margin-bottom:1px;font-weight:600}
+.inp{width:100%;background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 13px;font:inherit;font-size:14px;color:var(--navy);outline:0}
+.inp:focus{border-color:var(--orange)}
+.big{font-size:30px;font-weight:800;letter-spacing:-1px}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 18px}
+.kpi div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px}
+.kpi small{font-size:11px;color:var(--grey);display:block}
+.kpi b{font-size:22px;letter-spacing:-.5px}
+.locked{filter:blur(3.5px);pointer-events:none;user-select:none}
+.lockov{position:relative}
+.lockov .ov{position:absolute;inset:0;display:grid;place-items:center;z-index:2}
+input[type=range]{width:100%;accent-color:#EB4F33}
+.ob{height:100%;display:flex;flex-direction:column;padding:0 22px 26px;background:var(--navy);color:#fff}
+.ob .art{flex:1;display:grid;place-items:center}
+.ob h2{font-size:28px;line-height:1.12;margin:0 0 10px;letter-spacing:-.8px}
+.ob p{font-size:14px;color:#C9CCD8;line-height:1.55;margin:0 0 18px}
+.dots{display:flex;gap:6px;margin-bottom:16px}.dots i{width:7px;height:7px;border-radius:4px;background:#3a3d5c}.dots i.on{width:22px;background:var(--orange)}
+.fade{animation:fade .35s ease}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* présentation (mobile) */
+.mbtn{display:none}.mo{display:none}
+@media (max-width:980px){
+  body{overflow:hidden;background:var(--cream)}
+  .stage{padding:0;gap:0;display:block}
+  .pitch{display:none}
+  .device{width:100%;height:100%;border-radius:0;padding:0;box-shadow:none;background:transparent}
+  .screen{border-radius:0}
+  .island{display:none}
+  .status{height:env(safe-area-inset-top);min-height:6px;padding:0}.status span{display:none}
+  .mo{display:inline-flex !important}
+  .tabbar{height:calc(76px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+  .full .bar{padding-top:calc(env(safe-area-inset-top) + 14px)}
+  .push{top:calc(env(safe-area-inset-top) + 8px)}
+  .toast{bottom:calc(92px + env(safe-area-inset-bottom))}
+}
+.overlay{position:fixed;inset:0;background:var(--cream);z-index:200;overflow:auto;padding:22px 18px 40px;display:none}
+.overlay.show{display:block}
+.overlay .pitch{display:block;width:auto;max-height:none;overflow:visible}
+.overlay .feat{grid-template-columns:1fr}
+.overlay .qrcard{display:none}
+@media (max-height:860px) and (min-width:981px){.device{transform:scale(.9);transform-origin:center}}
+@media (max-height:760px) and (min-width:981px){.device{transform:scale(.78)}}
+</style>
+<style>
+.mbtn{display:none}
+@media (max-width:980px){.mbtn{display:block;position:fixed;right:10px;top:calc(env(safe-area-inset-top) + 8px);z-index:150;background:var(--navy);color:#fff;font-size:11px;font-weight:600;padding:6px 11px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25)}}
+.pitch .seg button{cursor:pointer}
+.sheet,.full{font-family:inherit}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="pitch" id="pitch"></aside>
+  <div class="device"><div class="screen" id="screen">
+    <div class="island"></div>
+    <div class="status"><span id="clock">18:42</span><span class="r"><span>5G</span><span>▮▮▮</span><span>▭</span></span></div>
+    <div id="view"></div>
+    <nav class="tabbar" id="tabbar"></nav>
+    <div class="push" id="push"></div>
+    <div class="toast" id="toast"></div>
+    <div class="scrim" id="scrim"></div>
+    <div class="sheet" id="sheet"></div>
+    <div class="full" id="full"></div>
+  </div></div>
+</div>
+<div class="overlay" id="overlay"></div>
+<style>
+.screen.dark .status{background:var(--navy);color:#fff}
+.sosbtn{background:#C8321E;color:#fff;font-weight:700;font-size:12px;padding:7px 12px;border-radius:999px}
+.badge.lock{background:#EAE7DF;color:#9A9CA8}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px;margin-right:6px}
+.v1{background:rgba(46,139,87,.14);color:#237246}.v2{background:rgba(235,79,51,.13);color:#C8391F}.v3{background:rgba(20,22,42,.1);color:var(--navy)}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45}
+.bar2{height:8px;border-radius:5px;background:#EAE7DF;overflow:hidden}.bar2 i{display:block;height:100%;background:var(--orange)}
+.vote{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.vote .chip{font-size:11.5px;padding:5px 9px}
+.mini{font-size:11px;color:var(--grey);line-height:1.45}
+.pulse{animation:pulse 2s infinite}@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(235,79,51,.5)}70%{box-shadow:0 0 0 14px rgba(235,79,51,0)}100%{box-shadow:0 0 0 0 rgba(235,79,51,0)}}
+.spin{width:34px;height:34px;border:4px solid #E4E1D8;border-top-color:var(--orange);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto}@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+<script>
+(function(){
+'use strict';
+/* ====== DONNÉES DE DÉMONSTRATION (fictives) ====== */
+var BOLT='0.56,0 0.12,0.54 0.44,0.54 0.30,1 0.84,0.40 0.52,0.40';
+function bolt(w,h,c){return '<svg viewBox="0 0 1 1" width="'+w+'" height="'+h+'" preserveAspectRatio="none"><polygon points="'+BOLT+'" fill="'+(c||'#EB4F33')+'"/></svg>';}
+function tile(s){return '<span class="tile" style="width:'+s+'px;height:'+s+'px;border-radius:'+Math.round(s*.28)+'px">'+bolt(Math.round(s*.46),Math.round(s*.52))+'</span>';}
+var COL=['#EB4F33','#2B3A67','#C48A2C','#2E8B57','#7A4FA3','#D1495B','#3A7CA5','#8A6F5A'];
+var U={
+ lea:{n:'Léa',a:27,f:97,b:['Ponctuelle','Bienveillante'],c:0},karim:{n:'Karim',a:29,f:94,b:['Bonne humeur'],c:1},
+ ines:{n:'Inès',a:24,f:96,b:['Ponctuelle'],c:2},tom:{n:'Tom',a:31,f:91,b:['À l’écoute'],c:3},sarah:{n:'Sarah',a:26,f:98,b:['Ponctuelle','Bienveillante'],c:4},
+ camille:{n:'Camille',a:28,f:95,b:['Sportive'],c:5},yanis:{n:'Yanis',a:25,f:93,b:['Bonne humeur'],c:6},lucas:{n:'Lucas',a:30,f:92,b:['Ponctuel'],c:7},
+ maelle:{n:'Maëlle',a:27,f:96,b:['Bienveillante'],c:0},nora:{n:'Nora',a:26,f:95,b:['À l’écoute'],c:1},hugo:{n:'Hugo',a:29,f:90,b:['Sportif'],c:2},
+ zoe:{n:'Zoé',a:23,f:94,b:['Bonne humeur'],c:3},rayan:{n:'Rayan',a:28,f:93,b:['Ponctuel'],c:4},jade:{n:'Jade',a:25,f:97,b:['Zen'],c:5},
+ theo:{n:'Théo',a:27,f:92,b:['Sportif'],c:6},manon:{n:'Manon',a:24,f:96,b:['Créative'],c:7},ali:{n:'Ali',a:30,f:94,b:['Ponctuel'],c:0},
+ eva:{n:'Éva',a:26,f:95,b:['Bienveillante'],c:1},leo:{n:'Léo',a:28,f:93,b:['Bonne humeur'],c:2},clara:{n:'Clara',a:25,f:96,b:['À l’écoute'],c:3}
+};
+/* lieux partenaires FICTIFS ; d = distance indicative (m) depuis la Manufacture, a = direction sur le plan */
+var V={
+ comptoir:{n:'Le Comptoir de la Manu',z:'Manufacture',e:'🍹',d:400,a:-30,bar:1,safe:1,o:'−15 % sur l’addition (dès 3 personnes)',p:'−25 % sur l’addition'},
+ cafetabac:{n:'Café Tabac & Co',z:'Manufacture',e:'☕',d:220,a:150,bar:1,safe:1,o:'−10 % sur l’addition'},
+ derouge:{n:'Le Dé Rouge · bar à jeux',z:'Manufacture',e:'🎲',d:450,a:200,bar:1,o:'Un dessert offert pour le groupe',p:'Une partie offerte en plus'},
+ ping:{n:'Ping Social Club',z:'Manufacture',e:'🏓',d:500,a:70,o:'−10 % sur la table'},
+ escape:{n:'Escape Lab Lyon 3',z:'Manufacture',e:'🔐',d:600,a:170,o:'−10 % par joueur',p:'−20 % par joueur'},
+ studio:{n:'Studio Lumière · yoga',z:'Manufacture',e:'🧘',d:700,a:-80,o:'−15 % sur le cours'},
+ galerie:{n:'Galerie Atelier 6',z:'Manufacture',e:'🖼️',d:350,a:40,o:'−20 % sur l’entrée'},
+ burger:{n:'Burger Street',z:'Sans Souci',e:'🍔',d:800,a:20,o:'−10 % sur le menu'},
+ brasserie:{n:'La Brasserie des Cours',z:'Sans Souci',e:'🍻',d:850,a:5,bar:1,safe:1,o:'−15 % sur l’addition',p:'−25 % sur l’addition'},
+ cine:{n:'Ciné Sans Souci',z:'Sans Souci',e:'🎬',d:950,a:35,o:'−20 % sur la place',p:'Pop-corn offert'},
+ transistor:{n:'Le Transistor · salle live',z:'Sans Souci',e:'🎶',d:1000,a:60,bar:1,o:'−15 % sur l’entrée'},
+ billardcours:{n:'Le Billard du Cours',z:'Sans Souci',e:'🎱',d:1000,a:-10,bar:1,o:'−15 % sur la table'},
+ micro:{n:'Le Micro · karaoké',z:'Sans Souci',e:'🎤',d:1200,a:15,o:'−20 % sur la salle'},
+ vertigo:{n:'Vertigo Climb · escalade',z:'Quai Augagneur',e:'🧗',d:1100,a:135,o:'−15 % sur l’entrée',p:'−25 % sur l’entrée'},
+ five:{n:'Five Arena · foot à 5',z:'Lyon 3',e:'⚽',d:1000,a:-60,o:'−15 % sur le terrain'},
+ bowling:{n:'Bowling des Quais',z:'Quai Augagneur',e:'🎳',d:1500,a:170,o:'−20 % sur la partie',p:'Une partie offerte en plus'},
+ berges:{n:'Berges du Rhône (lieu public)',z:'Berges',e:'🌿',d:1300,a:190,pub:1},
+ terrain:{n:'Terrain de basket des Berges (public)',z:'Berges',e:'🏀',d:1400,a:205,pub:1},
+ brassCarnot:{n:'Brasserie Carnot',z:'Place Carnot',e:'🍷',d:3000,a:175,bar:1,safe:1,o:'−15 % sur l’addition'},
+ padel:{n:'Padel Club Carnot',z:'Place Carnot',e:'🎾',d:3200,a:195,o:'−20 % sur le terrain'}
+};
+var ACT={
+ verre:{e:'🍹',n:'Verre en terrasse',c:'verre',s:'un verre en terrasse',v:['comptoir','brasserie','brassCarnot']},
+ cafe:{e:'☕',n:'Café & discussion',c:'verre',s:'un café',v:['cafetabac','derouge']},
+ street:{e:'🍔',n:'Street food',c:'verre',s:'un repas street food',v:['burger']},
+ cine:{e:'🎬',n:'Ciné',c:'culture',s:'une séance de ciné',v:['cine']},
+ concert:{e:'🎶',n:'Concert / DJ set',c:'culture',s:'un concert',v:['transistor']},
+ expo:{e:'🖼️',n:'Expo',c:'culture',s:'une expo',v:['galerie']},
+ quiz:{e:'🎧',n:'Quiz / blind test',c:'jeux',s:'un quiz / blind test',v:['brasserie','derouge']},
+ jeux:{e:'🎲',n:'Jeux de société',c:'jeux',s:'des jeux de société',v:['derouge','cafetabac']},
+ escape:{e:'🔐',n:'Escape game',c:'jeux',s:'un escape game',v:['escape']},
+ bowling:{e:'🎳',n:'Bowling',c:'jeux',s:'un bowling',v:['bowling']},
+ karaoke:{e:'🎤',n:'Karaoké',c:'jeux',s:'un karaoké',v:['micro']},
+ billard:{e:'🎱',n:'Billard & arcade',c:'jeux',s:'un billard',v:['billardcours','derouge']},
+ escalade:{e:'🧗',n:'Escalade',c:'sport',s:'une séance d’escalade',v:['vertigo']},
+ padel:{e:'🎾',n:'Padel',c:'sport',s:'un padel',v:['padel']},
+ foot:{e:'⚽',n:'Foot à 5',c:'sport',s:'un foot à 5',v:['five']},
+ pingpong:{e:'🏓',n:'Ping-pong',c:'sport',s:'un ping-pong',v:['ping']},
+ basket:{e:'🏀',n:'Basket',c:'sport',s:'un basket',v:['terrain']},
+ yoga:{e:'🧘',n:'Yoga',c:'sport',s:'une séance de yoga',v:['studio']},
+ footing:{e:'🏃',n:'Footing',c:'sport',s:'un footing',v:['berges']},
+ balade:{e:'🚶',n:'Balade aux quais',c:'sport',s:'une balade aux quais',v:['berges']}
+};
+var CATS=[['all','Tout'],['me','✨ Pour toi'],['verre','Verre & café'],['sport','Sport & nature'],['culture','Culture'],['jeux','Jeux & fun']];
+function T(h,m){return h*60+(m||0);}
+var O0=[
+ {id:'o12',act:'cafe',v:'cafetabac',t:T(18,30),org:'nora',max:3,j:['nora'],m:84},
+ {id:'o20',act:'balade',v:'berges',t:T(18,45),org:'rayan',max:4,j:['rayan','jade'],m:79},
+ {id:'o18',act:'escalade',v:'vertigo',t:T(19),org:'theo',max:4,j:['theo','clara','ali'],m:80},
+ {id:'o16',act:'street',v:'burger',t:T(19,15),org:'yanis',max:4,j:['yanis','eva'],m:83},
+ {id:'o1',act:'verre',v:'comptoir',t:T(19,30),org:'lea',max:4,j:['lea','manon'],m:92,msg:true},
+ {id:'o21',act:'expo',v:'galerie',t:T(19,30),org:'manon',max:4,j:['manon'],m:77},
+ {id:'o2',act:'jeux',v:'derouge',t:T(19,45),org:'sarah',max:6,j:['sarah','leo','zoe'],m:90},
+ {id:'o3',act:'quiz',v:'brasserie',t:T(20),org:'karim',max:6,j:['karim','tom','eva'],m:88},
+ {id:'o22',act:'verre',v:'brassCarnot',t:T(20),org:'hugo',max:4,j:['hugo','clara'],m:74},
+ {id:'o4',act:'cine',v:'cine',t:T(20,15),org:'ines',max:5,j:['ines','sarah'],m:91,circle:'cine'},
+ {id:'o15',act:'pingpong',v:'ping',t:T(20,15),org:'zoe',max:4,j:['zoe','lucas'],m:82},
+ {id:'o5',act:'escape',v:'escape',t:T(20,30),org:'tom',max:4,j:['tom','leo'],m:81},
+ {id:'o23',act:'concert',v:'transistor',t:T(20,30),org:'jade',max:6,j:['jade','ali','nora'],m:85},
+ {id:'o13',act:'foot',v:'five',t:T(20,45),org:'hugo',max:6,j:['hugo','theo','rayan','ali'],m:76},
+ {id:'o17',act:'karaoke',v:'micro',t:T(20,45),org:'maelle',max:6,j:['maelle','clara'],m:79},
+ {id:'o6',act:'bowling',v:'bowling',t:T(21),org:'lucas',max:6,j:['lucas','yanis','eva'],m:78},
+ {id:'o7',act:'padel',v:'padel',t:T(21),org:'camille',max:4,j:['camille','hugo','theo'],m:73}
+];
+var CIRC=[
+ {id:'cine',e:'🎬',n:'Jeudi ciné',w:'Tous les jeudis · 20 h 15',v:'cine',k:38},
+ {id:'run',e:'🏃',n:'Dimanche running',w:'Tous les dimanches · 10 h 00',v:'berges',k:24},
+ {id:'quiz',e:'🎧',n:'Mardi quiz',w:'Tous les mardis · 20 h 00',v:'brasserie',k:31},
+ {id:'jeux',e:'🎲',n:'Mercredi jeux',w:'Tous les mercredis · 19 h 30',v:'derouge',k:19}
+];
+var RADII=[500,1000,2000,4000];
+/* ====== ÉTAT ====== */
+var S;
+function fresh(){return{
+ step:'ob',ob:0,id1:0,id2:0,tab:'home',t:T(18),name:'Alex',interests:{verre:1,jeux:1,cine:1,quiz:1},cFind:true,cAds:false,
+ radius:4000,cap:3,plus:false,dispo:false,cat:'all',outings:O0.map(function(o){return Object.assign({},o,{j:o.j.slice()});}),
+ joined:{},checked:{},unlocked:{},notifs:[],pushToday:0,circles:{cine:1},safeOnly:false,trust:94,visits:142,homeDone:{},rated:{},chat:{},mapSel:null,badges:{},sim:0,stack:[],cr:null,unread:0,mine:0
+};}
+S=fresh();
+/* ====== OUTILS ====== */
+var view=document.getElementById('view'),tabbar=document.getElementById('tabbar'),full=document.getElementById('full'),sheet=document.getElementById('sheet'),scrim=document.getElementById('scrim'),toastEl=document.getElementById('toast'),pushEl=document.getElementById('push'),screen=document.getElementById('screen');
+function fmt(m){m=((m%1440)+1440)%1440;var h=Math.floor(m/60),x=m%60;return (h<10?'0':'')+h+':'+(x<10?'0':'')+x;}
+function fmtH(m){var h=Math.floor(m/60),x=m%60;return h+' h '+(x<10?'0':'')+x;}
+function dist(d){return d<1000?d+' m':(d/1000).toFixed(1).replace('.',',')+' km';}
+function rLabel(r){return r>=4000?'Carnot ↔ Sans Souci':(r<1000?r+' m':(r/1000)+' km');}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function ini(u){return '<span class="av" style="background:'+COL[u.c%COL.length]+'">'+u.n.charAt(0)+'</span>';}
+function toast(msg,ms){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(function(){toastEl.classList.remove('show');},ms||2600);}
+function byId(id){for(var i=0;i<S.outings.length;i++)if(S.outings[i].id===id)return S.outings[i];}
+function people(o){return o.j.concat(S.joined[o.id]&&o.j.indexOf('me')<0?['me']:[]);}
+function inR(o){return V[o.v].d<=S.radius;}
+function compat(o){var m=o.m+(S.interests[o.act]?6:0);return Math.min(98,m);}
+function reason(o){var u=U[o.org]||{n:S.name,f:S.trust},v=V[o.v];
+ if(S.interests[o.act])return 'Tu aimes '+ACT[o.act].n.toLowerCase()+' · à '+dist(v.d)+' · '+u.n+' '+u.f+' % fiable';
+ return 'À '+dist(v.d)+' · '+u.n+' '+u.f+' % fiable'+(v.o?' · offre sur place':'');}
+function advance(m){S.t+=m;document.getElementById('clock').textContent=fmt(S.t);}
+setInterval(function(){if(S.step!=='ob'){advance(1);}},20000);
+document.getElementById('clock').textContent=fmt(S.t);
+/* ====== ÉCRANS ====== */
+var IC={home:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',map:'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',plus:'<path d="M12 5v14M5 12h14"/>',ticket:'<path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M14 6v12" stroke-dasharray="2 2.4"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>'};
+function renderTabs(){
+ var tabs=[['home','Maintenant',IC.home],['map','Carte',IC.map],['create','',IC.plus],['offers','Offres',IC.ticket],['me','Moi',IC.user]];
+ tabbar.innerHTML=tabs.map(function(t){
+  if(t[0]==='create')return '<button class="tab" data-act="create" aria-label="Proposer une sortie"><span class="fab"><svg viewBox="0 0 24 24">'+t[2]+'</svg></span></button>';
+  return '<button class="tab'+(S.tab===t[0]?' on':'')+'" data-act="tab" data-id="'+t[0]+'"><svg viewBox="0 0 24 24">'+t[2]+'</svg>'+t[1]+'</button>';
+ }).join('');
+}
+function render(){
+ if(S.step==='ob'){tabbar.style.display='none';screen.classList.toggle('dark',S.ob===0);ob();return;}
+ tabbar.style.display='';screen.classList.remove('dark');
+ var st=view.scrollTop;renderTabs();({home:home,map:mapScr,offers:offersScr,me:meScr})[S.tab]();view.scrollTop=st;
+}
+function topbar(){
+ return '<div class="top"><div class="logo">'+tile(30)+'azey</div><div style="display:flex;gap:8px;align-items:center"><button class="chip mo" data-act="pitch" aria-label="À propos de la démo">ⓘ Démo</button>'+
+ (S.plus?'<button class="chip or" data-act="plus">⚡ Azey+</button>':'<button class="chip" data-act="plus">⚡ Azey+</button>')+
+ '<button class="chip" data-act="notifs" style="position:relative" aria-label="Notifications">🔔'+(S.unread?'<span style="position:absolute;top:-5px;right:-4px;background:var(--orange);color:#fff;border-radius:9px;min-width:17px;height:17px;font-size:10px;display:grid;place-items:center;font-weight:700">'+S.unread+'</span>':'')+'</button></div></div>';
+}
+function adHtml(){
+ if(S.plus)return '';
+ var ad=S.cAds?{e:'🍕',t:'Pizzeria Da Nino · −10 % avant 19 h',s:'Annonce · près de toi'}:{e:'🥤',t:'Fresh’Up · boissons sans alcool, −20 % sur ta 1ʳᵉ commande',s:'Annonce non personnalisée'};
+ return '<div class="ad tap" data-act="ad"><div class="l">'+ad.e+'</div><div><b>'+ad.t+'</b><small>'+ad.s+'</small></div><span class="x">ⓘ</span></div>';
+}
+function avs(o){return people(o).slice(0,5).map(function(id){return ini(id==='me'?{n:S.name,c:0}:U[id]);}).join('');}
+function card(o,why){
+ var a=ACT[o.act],v=V[o.v],u=U[o.org],left=o.max-people(o).length,me=S.joined[o.id],m=compat(o);
+ return '<div class="card tap fade" data-act="open" data-id="'+o.id+'">'+
+ '<div class="sort"><div class="emo">'+a.e+'</div><div style="min-width:0;flex:1"><div style="display:flex;justify-content:space-between;gap:6px;align-items:flex-start"><h4>'+a.n+'</h4><span class="compat badge '+(m>=88?'or':'')+'">'+m+' % compatible</span></div><div class="meta"><b style="color:var(--navy)">'+fmt(o.t)+'</b> · '+dist(v.d)+' · '+esc(v.n)+'</div><div class="meta">'+(o.org==='me'?S.name+' (toi)':u.n+', '+u.a+' ans <span style="color:var(--green)">✓ vérifié</span>')+'</div>'+(why?'<div class="meta" style="color:var(--orange);font-weight:500">✨ '+reason(o)+'</div>':'')+'</div></div>'+
+ '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px"><div style="display:flex;align-items:center;gap:8px"><span class="avs">'+avs(o)+'</span><span class="meta">'+(left>0?left+' place'+(left>1?'s':'')+' restante'+(left>1?'s':''):'Complet')+'</span></div>'+
+ (me?'<span class="badge gr">✓ Tu viens</span>':(left>0?'<button class="btn sm" data-act="join" data-id="'+o.id+'">Je viens</button>':'<span class="badge">Complet</span>'))+'</div></div>';
+}
+function home(){
+ var list=S.outings.filter(function(o){return inR(o)&&(S.cat==='all'||S.cat==='me'||ACT[o.act].c===S.cat)&&(o.t>=S.t-45||S.joined[o.id]);});
+ if(S.cat==='me')list.sort(function(a,b){return compat(b)-compat(a);});else list.sort(function(a,b){return a.t-b.t;});
+ var h=topbar();
+ h+='<div class="pad" style="margin-bottom:10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.5px">Salut '+esc(S.name)+' 👋</div><div class="meta">Jeudi 12 novembre · '+fmt(S.t)+' · 📍 Lyon 3 · Manufacture</div></div>';
+ h+='<div class="hero"><svg class="bg" viewBox="0 0 1 1" preserveAspectRatio="none" style="height:150px">'+'<polygon points="'+BOLT+'" fill="#fff"/></svg><div style="display:flex;justify-content:space-between;align-items:center;gap:14px;position:relative"><div><h3>'+(S.dispo?'Tu es dispo ✅':'Mode dispo')+'</h3><p>'+(S.dispo?'On te prévient dès qu’une sortie compatible se monte, '+(S.radius>=4000?'dans la zone Carnot ↔ Sans Souci':'à moins de '+rLabel(S.radius))+'.':'Dis que tu es partant : fini de scroller, la sortie vient à toi.')+'</p></div><button class="switch '+(S.dispo?'on':'')+'" data-act="dispo" aria-label="Mode dispo"></button></div></div>';
+ h+='<div class="row">'+CATS.map(function(c){return '<button class="chip '+(S.cat===c[0]?'on':'')+'" data-act="cat" data-id="'+c[0]+'">'+c[1]+'</button>';}).join('')+'</div>';
+ h+='<h2 class="s">'+(S.cat==='me'?'Choisies pour toi':'Ce soir près de toi')+'<small>'+list.length+' sortie'+(list.length>1?'s':'')+'</small></h2>';
+ if(!list.length)h+='<div class="card"><b>Aucune sortie dans ce rayon</b><div class="meta">Élargis la zone ou propose la première sortie.</div><div class="btns"><button class="btn sec" data-act="radius" data-id="4000">Élargir</button><button class="btn" data-act="create">Proposer</button></div></div>';
+ list.forEach(function(o,i){h+=card(o,S.cat==='me');if(i===1)h+=adHtml();});
+ h+='<h2 class="s">Rituels de quartier<small data-act="circles" style="color:var(--orange);cursor:pointer">Voir tout</small></h2><div class="row">'+CIRC.map(function(c){return '<button class="card tap" data-act="circles" style="margin:0;min-width:150px;text-align:left"><div style="font-size:24px">'+c.e+'</div><b style="font-size:13.5px">'+c.n+'</b><div class="meta">'+c.w+'</div></button>';}).join('')+'</div>';
+ h+='<h2 class="s">Événements Azey</h2>';
+ h+='<div class="card" style="background:var(--navy);color:#fff;border:0"><span class="badge or" style="background:rgba(235,79,51,.25);color:#FF9B88">Sortie signature</span><h4 style="margin:8px 0 2px;font-size:16px">Soirée jeux Fresh’Up × Azey</h4><div class="meta" style="color:#C9CCD8">Vendredi 13 nov. · 20 h 00 · Le Dé Rouge · boissons sans alcool offertes à l’arrivée</div><div class="btns"><button class="btn" data-act="sig">Je veux y aller</button></div></div>';
+ h+='<div class="card '+(S.plus?'':'tap')+'" data-act="vip"><span class="badge nv">⚡ Soirée VIP · membres Azey+</span><h4 style="margin:8px 0 2px;font-size:16px">Soirée membres · Le Transistor</h4><div class="meta">Samedi 14 nov. · 21 h 00 · accès réservé aux membres Azey+</div>'+(S.plus?'<div class="btns"><button class="btn dark" data-act="vip">Je m’inscris</button></div>':'<div class="btns"><span class="badge">🔒 Débloque avec Azey+</span></div>')+'</div>';
+ h+='<div class="mini" style="padding:6px 22px 24px">Azey est réservé aux 18 ans et plus. L’abus d’alcool est dangereux pour la santé, à consommer avec modération. Démo : lieux, personnes et chiffres fictifs.</div>';
+ view.innerHTML=h;
+}
+/* ----- carte ----- */
+function mapScr(){
+ var cx=180,cy=175,c=2.6;
+ function P(d,a){var r=c*Math.sqrt(d),q=a*Math.PI/180;return [cx+r*Math.cos(q),cy-r*Math.sin(q)];}
+ var s='<svg viewBox="0 0 360 350" role="img" aria-label="Plan schématique du quartier"><rect width="360" height="350" fill="#EFECE4"/>';
+ s+='<path d="M12 0C8 90 18 180 10 350" stroke="#D3DDE6" stroke-width="12" fill="none"/>';
+ s+='<path d="M68 0C60 80 76 170 64 260S72 330 68 350" stroke="#CAD7E3" stroke-width="15" fill="none"/>';
+ s+='<rect x="72" y="150" width="12" height="76" rx="6" fill="#DDE6D2"/><rect x="236" y="214" width="62" height="44" rx="10" fill="#E3E9D9"/><rect x="262" y="34" width="72" height="38" rx="10" fill="#E3E9D9"/>';
+ s+='<g stroke="#fff" fill="none" stroke-linecap="round"><path d="M90 40L350 40M90 100L350 96M90 262L350 270M90 312L350 312" stroke-width="3"/><path d="M130 14L120 340M200 14L206 340M300 14L312 340" stroke-width="3"/><path d="M96 196L344 124" stroke-width="6"/><path d="M26 110L58 110M26 250L58 250M26 60L56 60M26 300L58 300" stroke-width="3"/></g>';
+ s+='<text x="276" y="132" font-size="7.5" fill="#A29E92" font-family="Poppins" transform="rotate(-16 276 132)">cours Albert Thomas</text>';
+ s+='<text x="6" y="236" font-size="9" font-weight="700" fill="#6B6F80" font-family="Poppins">Place Carnot</text><text x="6" y="246" font-size="7" fill="#A29E92" font-family="Poppins">Perrache</text>';
+ s+='<text x="276" y="172" font-size="10" font-weight="700" fill="#6B6F80" font-family="Poppins">Sans Souci</text>';
+ s+='<text x="98" y="336" font-size="7" fill="#8CA0B5" font-family="Poppins" transform="rotate(-90 98 336)">Rhône</text>';
+ var R=c*Math.sqrt(S.radius);
+ s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="rgba(235,79,51,.07)" stroke="#EB4F33" stroke-width="1.4" stroke-dasharray="5 4"/>';
+ s+='<circle cx="'+cx+'" cy="'+cy+'" r="15" fill="rgba(235,79,51,.2)"/><circle cx="'+cx+'" cy="'+cy+'" r="5.5" fill="#EB4F33" stroke="#fff" stroke-width="2"/>';
+ var cnt={};S.outings.forEach(function(o){if(o.t>=S.t-45)cnt[o.v]=(cnt[o.v]||0)+1;});
+ Object.keys(V).forEach(function(k){var v=V[k];if(v.d>S.radius)return;if(S.safeOnly&&!v.safe)return;
+  var p=P(v.d,v.a),sel=S.mapSel===k;
+  s+='<g class="pin" data-act="pin" data-id="'+k+'"><circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(sel?13:10.5)+'" fill="#fff" stroke="'+(S.safeOnly?'#2E8B57':(sel?'#14162A':'#EB4F33'))+'" stroke-width="2"/><text x="'+p[0].toFixed(1)+'" y="'+(p[1]+3.6).toFixed(1)+'" font-size="'+(sel?13:11.5)+'" text-anchor="middle">'+v.e+'</text>'+
+  (S.safeOnly?'<circle cx="'+(p[0]+8).toFixed(1)+'" cy="'+(p[1]-8).toFixed(1)+'" r="5.5" fill="#2E8B57"/><text x="'+(p[0]+8).toFixed(1)+'" y="'+(p[1]-5.5).toFixed(1)+'" font-size="7" fill="#fff" text-anchor="middle" font-weight="700">A</text>':(cnt[k]?'<circle cx="'+(p[0]+8).toFixed(1)+'" cy="'+(p[1]-8).toFixed(1)+'" r="5.5" fill="#14162A"/><text x="'+(p[0]+8).toFixed(1)+'" y="'+(p[1]-5.4).toFixed(1)+'" font-size="7.5" fill="#fff" text-anchor="middle" font-weight="700">'+cnt[k]+'</text>':''))+'</g>';});
+ s+='</svg>';
+ var h=topbar()+'<div class="pad"><div style="font-size:22px;font-weight:700;letter-spacing:-.5px">Autour de toi</div><div class="meta">Plan schématique · distances indicatives · ta position est floutée</div></div>';
+ h+='<div class="row" style="margin-top:8px">'+RADII.map(function(r){return '<button class="chip '+(S.radius===r?'on':'')+'" data-act="radius" data-id="'+r+'">'+(r>=4000?'Carnot ↔ Sans Souci':rLabel(r))+'</button>';}).join('')+'</div>';
+ h+='<div class="mapwrap">'+s+'</div>';
+ h+='<div class="row" style="padding-top:8px"><button class="chip '+(S.safeOnly?'on':'')+'" data-act="safe">🛡️ Lieux sûrs · Demandez Angela</button><button class="chip" data-act="sos">🆘 SOS</button></div>';
+ if(S.safeOnly)h+='<div class="card"><b>Lieux sûrs à proximité</b><div class="meta">Pastille <b style="color:var(--green)">A</b> : lieu du dispositif Demandez Angela. Entre, demande « Angela » : le personnel sait quoi faire. (Lieux de démonstration.)</div></div>';
+ else if(S.mapSel){var k=S.mapSel,v=V[k],os=S.outings.filter(function(o){return o.v===k&&o.t>=S.t-45;});
+  h+='<div class="card"><div class="sort"><div class="emo">'+v.e+'</div><div><h4>'+esc(v.n)+'</h4><div class="meta">'+v.z+' · '+dist(v.d)+(v.pub?' · lieu public':' · lieu partenaire')+'</div>'+(v.o?'<div class="meta" style="color:var(--orange);font-weight:500">🎟️ '+v.o+'</div>':'')+'</div></div></div>';
+  if(os.length)os.forEach(function(o){h+=card(o);});else h+='<div class="card"><div class="meta">Aucune sortie ici pour l’instant.</div><div class="btns"><button class="btn" data-act="create" data-id="'+k+'">Proposer une sortie ici</button></div></div>';}
+ else h+='<div class="card"><div class="meta">Touche un lieu pour voir les sorties, l’offre et proposer la tienne. Le chiffre sur le lieu = sorties en cours.</div></div>';
+ h+='<div class="mini" style="padding:2px 22px 24px">Lieux publics uniquement. Les noms de lieux sont fictifs (démo).</div>';
+ view.innerHTML=h;
+}
+/* ----- offres ----- */
+function offersScr(){
+ var h=topbar()+'<div class="pad"><div style="font-size:22px;font-weight:700;letter-spacing:-.5px">Offres exclusives</div><div class="meta">Chez les lieux partenaires. Elles se débloquent en scannant le QR code sur place.</div></div>';
+ var un=Object.keys(S.unlocked);
+ h+='<h2 class="s">Mes offres<small>'+un.length+' débloquée'+(un.length>1?'s':'')+'</small></h2>';
+ if(!un.length)h+='<div class="card"><div class="meta">Rien pour l’instant. Rejoins une sortie, scanne le QR du lieu : l’offre arrive ici.</div></div>';
+ un.forEach(function(k){var v=V[k];h+='<div class="card" style="border-color:var(--green)"><div class="sort"><div class="emo">'+v.e+'</div><div><h4>'+esc(v.n)+'</h4><div class="meta" style="color:var(--green);font-weight:600">✓ '+(S.plus&&v.p?v.p+' (Azey+)':v.o)+'</div><div class="meta">Montre cet écran au comptoir</div></div></div></div>';});
+ h+='<h2 class="s">Près de toi<small>'+rLabel(S.radius)+'</small></h2>';
+ var ks=Object.keys(V).filter(function(k){return V[k].o&&V[k].d<=S.radius;}).sort(function(a,b){return V[a].d-V[b].d;});
+ ks.forEach(function(k,i){var v=V[k];
+  h+='<div class="card"><div class="sort"><div class="emo">'+v.e+'</div><div style="flex:1;min-width:0"><h4>'+esc(v.n)+'</h4><div class="meta">'+dist(v.d)+' · '+v.z+'</div><div class="meta" style="color:var(--navy);font-weight:600">🎟️ '+v.o+'</div>'+(v.p?'<div class="meta '+(S.plus?'':'')+'" style="color:var(--orange)">⚡ Azey+ : '+(S.plus?v.p:'<span class="locked">'+v.p+'</span> · '+'<u data-act="plus">voir</u>')+'</div>':'')+'</div>'+(S.unlocked[k]?'<span class="badge gr" style="align-self:flex-start">✓ Débloquée</span>':'<span class="badge" style="align-self:flex-start">QR</span>')+'</div></div>';
+  if(i===2)h+=adHtml();});
+ h+='<div class="mini" style="padding:6px 22px 24px">Les offres portent sur l’addition ou l’activité, jamais sur l’alcool. L’abus d’alcool est dangereux pour la santé, à consommer avec modération. 18 ans et plus.</div>';
+ view.innerHTML=h;
+}
+/* ----- moi ----- */
+function meScr(){
+ var nb=Object.keys(S.checked).length;
+ var bd=[['✓','Identité vérifiée',1],['🌱','Première sortie',nb>0],['🤝','Bienveillant·e',S.badges.kind],['⏱️','Ponctuel·le',nb>0]];
+ var h=topbar()+'<div class="card" style="text-align:center;margin-top:4px"><span class="av" style="width:64px;height:64px;font-size:26px;margin:0;background:var(--orange)">'+esc(S.name.charAt(0)||'A')+'</span><div style="font-size:20px;font-weight:700;margin-top:8px">'+esc(S.name)+(S.plus?' <span class="badge or">⚡ Azey+</span>':'')+'</div><div class="meta">✓ Identité vérifiée · 18+ · Lyon 3 · Manufacture</div>'+
+ '<div style="margin:14px 4px 4px;text-align:left"><div style="display:flex;justify-content:space-between;font-size:12px"><b>Score de fiabilité</b><b>'+S.trust+' %</b></div><div class="bar2" style="margin-top:6px"><i style="width:'+S.trust+'%"></i></div><div class="mini" style="margin-top:6px">Il monte quand tu viens, à l’heure, et que les autres te notent positivement.</div></div>'+
+ '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;justify-content:center">'+bd.map(function(b){return '<span class="badge '+(b[2]?'gr':'lock')+'">'+b[0]+' '+b[1]+'</span>';}).join('')+'</div></div>';
+ h+='<div class="kpi"><div><small>Sorties faites</small><b>'+nb+'</b></div><div><small>Cercles rejoints</small><b>'+Object.keys(S.circles).length+'</b></div></div>';
+ h+=S.plus?'<div class="card tap" data-act="plus" style="margin-top:10px;background:var(--navy);color:#fff;border:0"><b>⚡ Azey+ actif</b><div class="meta" style="color:#C9CCD8">Sans annonce · propositions illimitées · soirées VIP</div></div>':'<div class="card tap" data-act="plus" style="margin-top:10px;background:var(--navy);color:#fff;border:0"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>⚡ Passe à Azey+</b><div class="meta" style="color:#C9CCD8">3,99 €/mois · sans annonce · soirées VIP</div></div><span class="badge or">Voir</span></div></div>';
+ h+='<h2 class="s">Ta communauté</h2><div class="card" style="padding:4px 14px">'+
+ '<button class="line" data-act="circles" style="width:100%;text-align:left"><span style="font-size:20px">🔁</span><span class="grow"><b>Cercles & rituels de quartier</b><small>Jeudi ciné, dimanche running…</small></span><span>›</span></button>'+
+ '<button class="line" data-act="invite" style="width:100%;text-align:left"><span style="font-size:20px">💌</span><span class="grow"><b>Parrainage</b><small>Ton code : AZEY-'+esc(S.name.toUpperCase().replace(/[^A-Z]/g,'').slice(0,6)||'AMI')+' · invite des amis vérifiés</small></span><span>›</span></button>'+
+ '<button class="line" data-act="partner" style="width:100%;text-align:left"><span style="font-size:20px">🏪</span><span class="grow"><b>Espace partenaire</b><small>Vue du tableau de bord pour les lieux</small></span><span>›</span></button></div>';
+ h+='<h2 class="s">Réglages</h2><div class="card" style="padding:4px 14px">'+
+ '<div class="line"><span class="grow"><b>Rayon de recherche</b><small id="rv">'+rLabel(S.radius)+'</small></span></div><div style="padding:0 0 10px"><input type="range" min="0" max="3" step="1" value="'+RADII.indexOf(S.radius)+'" data-in="radius"></div>'+
+ '<div class="line"><span class="grow"><b>Notifications par jour</b><small id="cv">'+S.cap+' maximum (réglable)</small></span></div><div style="padding:0 0 10px"><input type="range" min="1" max="6" step="1" value="'+S.cap+'" data-in="cap"></div>'+
+ '<div class="line"><span class="grow"><b>Trouver des sorties</b><small>Position floutée, nécessaire au service</small></span><button class="switch '+(S.cFind?'on':'')+'" data-act="cons" data-id="find"></button></div>'+
+ '<div class="line"><span class="grow"><b>Offres ciblées</b><small>Facultatif · annonces personnalisées</small></span><button class="switch '+(S.cAds?'on':'')+'" data-act="cons" data-id="ads"></button></div>'+
+ '<button class="line" data-act="delete" style="width:100%;text-align:left;color:#C8321E"><span class="grow"><b>Supprimer mon compte</b><small>Efface tes données</small></span></button></div>';
+ h+='<h2 class="s">À venir</h2><div class="card" style="padding:4px 14px"><div class="line"><span style="font-size:20px">🎓</span><span class="grow"><b>Azey Campus</b><small>Écoles, BDE, associations : accueillir les nouveaux</small></span><span class="badge">Bientôt</span></div><div class="line"><span style="font-size:20px">🏢</span><span class="grow"><b>Azey Entreprise</b><small>Coworkings, équipes qui arrivent en ville</small></span><span class="badge">Bientôt</span></div></div>';
+ h+='<div class="mini" style="padding:6px 22px 30px">Azey · Sors maintenant. Démo non contractuelle.</div>';
+ view.innerHTML=h;
+}
+/* ====== PILE D'ÉCRANS, FEUILLES, NOTIFICATIONS ====== */
+function drawFull(anim){
+ var fn=S.stack[S.stack.length-1];if(!fn){full.classList.remove('show');return;}
+ var b=full.querySelector('.body'),st=b?b.scrollTop:0;
+ full.innerHTML=fn();
+ var nb=full.querySelector('.body');if(nb&&!anim)nb.scrollTop=st;
+ if(anim)requestAnimationFrame(function(){requestAnimationFrame(function(){full.classList.add('show');});});else full.classList.add('show');
+}
+function go(fn){S.stack.push(fn);drawFull(S.stack.length===1);}
+function back(){S.stack.pop();if(S.stack.length)drawFull(false);else{full.classList.remove('show');}render();}
+function closeAll(){S.stack=[];full.classList.remove('show');closeSheet();}
+function refresh(){if(S.stack.length)drawFull(false);render();}
+function shell(title,right,body,foot){return '<div class="bar"><button class="back" data-act="back" aria-label="Retour">‹</button><div class="t">'+title+'</div>'+(right||'')+'</div><div class="body">'+body+'</div>'+(foot||'');}
+function openSheet(h){sheet.innerHTML='<div class="grab"></div>'+h;sheet.scrollTop=0;sheet.classList.add('show');scrim.classList.add('show');}
+function closeSheet(){sheet.classList.remove('show');scrim.classList.remove('show');}
+scrim.addEventListener('click',closeSheet);
+function hidePush(){pushEl.classList.remove('show');}
+function push(p){
+ if(S.step==='ob')return;
+ S.notifs.unshift({title:p.title,text:p.text,t:S.t,ic:p.ic||'⚡',id:p.id});
+ if(!p.tx){if(S.pushToday>=S.cap){S.unread++;render();toast('🔕 Plafond de notifications atteint : rangée dans ton centre');return;}S.pushToday++;}
+ S.unread++;
+ pushEl.innerHTML='<div class="h">'+tile(22)+'<b style="color:var(--navy)">AZEY</b><span>· maintenant</span></div><p>'+p.text+'</p><div style="display:flex;gap:8px">'+(p.btns||[]).map(function(b,i){return '<button class="btn sm'+(i?' sec':'')+'" data-act="'+b[1]+'"'+(b[2]?' data-id="'+b[2]+'"':'')+'>'+b[0]+'</button>';}).join('')+'</div>';
+ pushEl.classList.add('show');clearTimeout(push.h);push.h=setTimeout(hidePush,p.ms||8000);
+ render();
+}
+/* ====== ONBOARDING ====== */
+function ob(){
+ var h='';
+ if(S.ob===0){
+  h='<div class="ob"><div style="padding-top:6px;display:flex;justify-content:space-between;align-items:center">'+tile(44)+'<button class="chip mo" data-act="pitch" style="background:transparent;color:#C9CCD8;border-color:#3a3d5c">ⓘ Démo</button></div><div class="art"><div style="width:100%"><div style="font-size:56px;font-weight:800;letter-spacing:-2.5px;line-height:1">azey</div><div style="color:var(--orange);font-weight:700;font-size:20px;margin:4px 0 22px">Sors maintenant.</div><div style="background:#fff;color:var(--navy);border-radius:20px;padding:13px"><div class="mini" style="display:flex;gap:6px;align-items:center">'+tile(20)+'<b style="color:var(--navy)">AZEY</b> · maintenant</div><div style="font-size:14px;font-weight:500;margin:6px 0 10px;line-height:1.35">Léa propose un verre en terrasse ce soir à 19 h 30, à 400 m. Tu en es ?</div><div style="display:flex;gap:8px"><span class="btn sm">Je viens</span><span class="btn sm sec">Pas ce soir</span></div></div></div></div><h2>Une envie, une notification, une sortie.</h2><p>Des sorties spontanées avec des personnes vérifiées, dans des lieux publics partenaires, près de chez toi.</p><div class="dots"><i class="on"></i><i></i><i></i><i></i></div><button class="btn wide" data-act="obnext">Commencer</button><button class="mini" style="color:#9094AA;margin-top:12px;text-align:center" data-act="obskip">Passer l’inscription (démo)</button></div>';
+ } else {
+  var pr='<div class="prog" style="padding-top:6px">'+[1,2,3].map(function(i){return '<i class="'+(i<=S.ob?'on':'')+'"></i>';}).join('')+'</div>';
+  var hd=function(n,t,s){return '<div class="pad"><span class="badge or">Étape '+n+' sur 3</span><h2 style="font-size:25px;margin:10px 0 6px;letter-spacing:-.7px;line-height:1.12">'+t+'</h2><p class="meta" style="font-size:13px;margin:0 0 14px">'+s+'</p></div>';};
+  if(S.ob===1){
+   var st=function(n,ic,t,s){var v=S['id'+n],can=(n===1)||S.id1===2;return '<div class="line"><span class="emo">'+ic+'</span><span class="grow"><b>'+t+'</b><small>'+s+'</small></span>'+(v===2?'<span class="badge gr">✓ OK</span>':(v===1?'<span class="spin" style="width:22px;height:22px;border-width:3px;margin:0"></span>':'<button class="btn sm" '+(can?'':'disabled')+' data-act="idstep" data-id="'+n+'">'+(n===1?'Scanner':'Selfie')+'</button>'))+'</div>';};
+   h=pr+hd(1,'Ici, tout le monde est vérifié.','Pièce d’identité + selfie : c’est ce qui permet de sortir avec des inconnus sereinement. Azey est réservé aux 18 ans et plus.')+'<div class="card">'+st(1,'🪪','Pièce d’identité','Carte d’identité ou passeport')+st(2,'🤳','Selfie','Pour vérifier que c’est bien toi')+'</div>'+
+   (S.id1===2&&S.id2===2?'<div class="card" style="border-color:var(--green)"><b style="color:var(--green)">✓ Identité vérifiée · 18 ans et plus</b><div class="meta">Tu auras le badge « Identité vérifiée » sur ta fiche.</div></div>':'')+
+   '<div class="pad"><p class="mini">Vérification simulée dans cette démo. Dans la vraie appli, un service spécialisé la réalise, et les données d’identité sont effacées après vérification quand c’est possible.</p><button class="btn wide" data-act="obnext" '+(S.id1===2&&S.id2===2?'':'disabled')+'>Continuer</button></div>';
+  } else if(S.ob===2){
+   h=pr+hd(2,'Tes choix, tes données.','Deux consentements séparés : l’un pour utiliser Azey, l’autre (facultatif) pour les offres ciblées.')+
+   '<div class="card"><button class="chk" data-act="charte" style="text-align:left;width:100%"><span class="switch '+(S.charte?'on':'')+'" style="width:40px;height:24px"></span><span><b>J’accepte la charte Azey</b><br><span class="meta">Je viens aux sorties auxquelles je m’inscris, je respecte les autres, je reste dans des lieux publics.</span></span></button></div>'+
+   '<div class="card"><button class="chk" data-act="cons" data-id="find" style="text-align:left;width:100%"><span class="switch '+(S.cFind?'on':'')+'" style="width:40px;height:24px"></span><span><b>Trouver des sorties autour de moi</b><br><span class="meta">Ma position est floutée. Nécessaire pour utiliser Azey.</span></span></button></div>'+
+   '<div class="card"><button class="chk" data-act="cons" data-id="ads" style="text-align:left;width:100%"><span class="switch '+(S.cAds?'on':'')+'" style="width:40px;height:24px"></span><span><b>Offres ciblées <span class="badge">Facultatif</span></b><br><span class="meta">Recevoir des offres et annonces adaptées à mes goûts. Modifiable à tout moment.</span></span></button></div>'+
+   '<div class="pad"><button class="btn wide" data-act="obnext" '+(S.charte&&S.cFind?'':'disabled')+'>Continuer</button></div>';
+  } else {
+   var n=Object.keys(S.interests).length;
+   h=pr+hd(3,'Dis-nous ce que tu aimes.','Choisis au moins 3 envies : elles servent aux recommandations « Pour toi ».')+
+   '<div class="pad" style="margin-bottom:10px"><input class="inp" data-in="name" value="'+esc(S.name)+'" placeholder="Ton prénom" maxlength="14"></div>'+
+   '<div class="row" style="flex-wrap:wrap;overflow:visible">'+Object.keys(ACT).map(function(k){return '<button class="chip '+(S.interests[k]?'on':'')+'" data-act="intr" data-id="'+k+'">'+ACT[k].e+' '+ACT[k].n+'</button>';}).join('')+'</div>'+
+   '<div class="card" style="margin-top:8px"><b>📍 Lyon 3 · Manufacture</b><div class="meta">Première zone d’Azey : de la place Carnot à Sans Souci, un quartier à la fois.</div></div>'+
+   '<div class="pad"><button class="btn wide" data-act="obdone" '+(n>=3&&S.name.trim()?'':'disabled')+'>C’est parti ('+n+' envies)</button></div>';
+  }
+ }
+ view.innerHTML=h;
+}
+/* ====== SORTIE : DÉTAIL, CHAT, CHECK-IN, BIEN RENTRÉ ====== */
+function detail(id){var f=function(){
+ var o=byId(id),a=ACT[o.act],v=V[o.v],mine=o.org==='me',u=mine?{n:S.name,a:'',f:S.trust}:U[o.org],joined=S.joined[id],chk=S.checked[id],hm=S.homeDone[id],ps=people(o),left=o.max-ps.length,dt=o.t-S.t;
+ var b='<div class="card" style="margin-top:0"><div class="sort"><div class="emo" style="width:60px;height:60px;font-size:32px">'+a.e+'</div><div><h4 style="font-size:19px">'+a.n+'</h4><div class="meta">Proposée par '+(mine?'toi':u.n+', '+u.a+' ans ✓')+'</div></div></div>'+
+ '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px"><span class="chip">⏰ '+fmtH(o.t)+'</span><span class="chip">📍 '+dist(v.d)+'</span><span class="chip">👥 '+ps.length+'/'+o.max+'</span></div><div class="meta" style="margin-top:8px">'+(dt>0?'Départ dans '+(dt>=60?Math.floor(dt/60)+' h '+(dt%60<10?'0':'')+dt%60:dt+' min'):'C’est maintenant !')+' · groupe de 3 à 6 · lieu public</div></div>';
+ b+='<div class="card"><div class="sort"><div class="emo">'+v.e+'</div><div style="flex:1"><h4>'+esc(v.n)+'</h4><div class="meta">'+v.z+(v.pub?' · lieu public':' · lieu partenaire Azey')+'</div></div></div>'+
+ (v.o?'<div class="line" style="margin-top:8px;border:0;padding-bottom:0"><span style="font-size:20px">🎟️</span><span class="grow"><b>'+(S.plus&&v.p?v.p+' <span class="badge or">Azey+</span>':v.o)+'</b><small>'+(S.unlocked[o.v]?'✓ Débloquée · montre-la au comptoir':'À débloquer en scannant le QR du lieu')+'</small></span></div>':'')+
+ (v.bar?'<div class="mini" style="margin-top:8px">L’abus d’alcool est dangereux pour la santé, à consommer avec modération. 18 ans et plus.</div>':'')+'</div>';
+ b+='<h2 class="s" style="margin-top:6px">Qui vient<small>'+ps.length+' personne'+(ps.length>1?'s':'')+' vérifiée'+(ps.length>1?'s':'')+'</small></h2><div class="card" style="padding:4px 14px">'+ps.map(function(pid){var p=pid==='me'?{n:S.name+' (toi)',a:'',f:S.trust,b:['Identité vérifiée'],c:0}:U[pid];
+  return '<div class="line">'+ini(p)+'<span class="grow"><b>'+esc(p.n)+(p.a?', '+p.a+' ans':'')+' <span style="color:var(--green)">✓</span></b><small>'+p.b.join(' · ')+'</small></span><span class="badge '+(p.f>=95?'gr':'')+'">'+p.f+' % fiable</span></div>';}).join('')+'</div>';
+ var act='';
+ if(!joined){act=left>0?'<div class="btns"><button class="btn" data-act="join" data-id="'+id+'">Je viens</button><button class="btn sec" data-act="nope">Pas ce soir</button></div>':'<div class="card"><b>Cette sortie est complète</b></div>';}
+ else if(!chk){act='<div class="card" style="border-color:var(--green)"><b style="color:var(--green)">✓ Tu viens</b><div class="meta">⏰ Rappel programmé à '+fmt(Math.max(o.t-60,S.t))+' (1 h avant)</div><div class="btns"><button class="btn dark" data-act="chat" data-id="'+id+'">💬 Chat</button><button class="btn" data-act="checkin" data-id="'+id+'">📷 Check-in QR</button></div></div>';}
+ else if(!hm){act='<div class="card" style="border-color:var(--green)"><b style="color:var(--green)">✓ Présence validée</b><div class="meta">Offre débloquée. Profite de la soirée !</div><div class="btns"><button class="btn dark" data-act="chat" data-id="'+id+'">💬 Chat</button><button class="btn" data-act="homeok" data-id="'+id+'">🏠 Je suis bien rentré·e</button></div></div>';}
+ else act='<div class="card" style="border-color:var(--green)"><b style="color:var(--green)">✓ Bien rentré·e'+(S.rated[id]?' · merci pour ton avis':'')+'</b>'+(S.rated[id]?'':'<div class="btns"><button class="btn" data-act="homeok" data-id="'+id+'">Donner mon avis</button></div>')+'</div>';
+ b+=act;
+ if(joined&&!hm)b+='<div class="mini" style="padding:6px 22px">Démo : <u data-act="remind" data-id="'+id+'">⏩ passer à 1 h avant</u>'+(chk?'':' · <u data-act="checkin" data-id="'+id+'">📍 simuler l’arrivée</u>')+'</div>';
+ b+='<div style="height:24px"></div>';
+ return shell('Sortie','<button class="chip" data-act="report" data-id="'+id+'" aria-label="Signaler">🚩</button><button class="sosbtn" data-act="sos">SOS</button>',b);
+};f.k='d'+id;return f;}
+function seedChat(o){var ps=people(o),other=ps.filter(function(x){return x!==o.org&&x!=='me';})[0];
+ var m=[{u:o.org,t:'Salut tout le monde 👋 On se retrouve devant l’entrée, je serai en veste orange.',at:S.t-6}];
+ if(other)m.push({u:other,t:'Top, j’arrive ! 🙌',at:S.t-3});return m;}
+function bubble(m){var me=m.u==='me',u=me?null:U[m.u];return '<div class="bubble '+(me?'out':'in')+'">'+(me?'':'<small>'+esc(u?u.n:'Groupe')+'</small>')+esc(m.t)+'</div>';}
+function chatScr(id){return function(){var o=byId(id),ms=S.chat[id]||(S.chat[id]=seedChat(o));
+ return shell('Chat de la sortie','<span class="badge">⏳ éphémère</span>','<div class="pad"><div class="card" style="margin:0 0 12px"><div class="mini">Ce chat est réservé au groupe et disparaît après la sortie. Pas de messagerie privée : on se parle pour s’organiser, on se voit pour de vrai.</div></div><div id="msgs">'+ms.map(bubble).join('')+'</div></div>',
+  '<div style="padding:10px 14px 26px;display:flex;gap:8px;background:#fff;border-top:1px solid var(--line)"><input class="inp" id="chatin" data-in="chat" data-id="'+id+'" placeholder="Écris au groupe…"><button class="btn sm" data-act="send" data-id="'+id+'">Envoyer</button></div>');};}
+function sendMsg(id){var inp=document.getElementById('chatin');if(!inp||!inp.value.trim())return;var o=byId(id),ms=S.chat[id];
+ var m={u:'me',t:inp.value.trim()};ms.push(m);inp.value='';var box=document.getElementById('msgs');box.insertAdjacentHTML('beforeend',bubble(m));full.querySelector('.body').scrollTop=99999;
+ setTimeout(function(){var ps=people(o).filter(function(x){return x!=='me';});if(!ps.length||!document.getElementById('msgs'))return;var r={u:ps[ps.length-1],t:['Parfait, à tout à l’heure !','Ça marche 👍','Super, j’ai hâte !'][ms.length%3]};ms.push(r);box.insertAdjacentHTML('beforeend',bubble(r));full.querySelector('.body').scrollTop=99999;},1300);}
+function checkinSheet(id){var v=V[byId(id).v];
+ openSheet('<h3>Check-in au lieu</h3><p class="sub">Scanne le QR code affiché chez <b>'+esc(v.n)+'</b>. Ça valide ta présence et débloque l’offre.</p><div class="qrframe"><div style="font-size:64px;color:#fff;opacity:.9">▦</div><div class="scanline"></div></div><button class="btn wide" id="scanbtn" data-act="scan" data-id="'+id+'">Scanner le QR du lieu (simulation)</button><button class="btn ghost wide" style="margin-top:8px" data-act="closesheet">Annuler</button>');}
+function scanDone(id){var o=byId(id),v=V[o.v];S.checked[id]=true;if(v.o)S.unlocked[o.v]=true;S.visits++;
+ sheet.innerHTML='<div class="grab"></div><div style="text-align:center;padding:8px 0 6px"><div style="font-size:54px">✅</div><h3>Présence validée</h3><p class="sub">'+(v.o?'Offre débloquée : <b>'+(S.plus&&v.p?v.p:v.o)+'</b> chez '+esc(v.n)+'.':'Bonne sortie !')+'</p></div><div class="btns"><button class="btn sec" data-act="closesheet">Fermer</button>'+(v.o?'<button class="btn" data-act="seeoffers">Voir mon offre</button>':'')+'</div>';
+ refresh();
+ push({tx:1,ic:'🎟️',title:'Offre débloquée',text:v.o?'Ton offre chez '+esc(v.n)+' est débloquée : '+(S.plus&&v.p?v.p:v.o)+'.':'Bonne sortie !',btns:v.o?[['Voir','seeoffers']]:[]});}
+function ratingSheet(id){var o=byId(id),ps=people(o).filter(function(x){return x!=='me';});
+ openSheet('<h3>Comment c’était ?</h3><p class="sub">Notation bienveillante : tu valorises ce qui s’est bien passé. Un souci ? Utilise « Signaler ».</p>'+ps.map(function(pid){var p=U[pid];return '<div class="line" style="align-items:flex-start">'+ini(p)+'<span class="grow"><b>'+p.n+'</b><div class="vote">'+['Sympa','Ponctuel·le','À l’écoute'].map(function(t){return '<button class="chip" data-act="tag">'+t+'</button>';}).join('')+'</div></span></div>';}).join('')+'<button class="btn wide" style="margin-top:12px" data-act="sendrate" data-id="'+id+'">Envoyer</button>');}
+function homeSheet(id){openSheet('<div style="text-align:center"><div style="font-size:50px">🏠</div><h3>Bien rentré·e ?</h3><p class="sub">On vérifie que tout va bien après la sortie.</p></div><div class="btns"><button class="btn sec" data-act="sos">J’ai un souci</button><button class="btn" data-act="homeyes" data-id="'+id+'">Oui, bien rentré·e</button></div>');}
+function sosSheet(){openSheet('<h3 style="color:#C8321E">Besoin d’aide ?</h3><p class="sub">Le SOS est toujours gratuit. Dans cette démo, les actions sont simulées.</p><div style="display:grid;gap:8px"><button class="btn" style="background:#C8321E" data-act="sosshare">📍 Prévenir un proche avec ma position</button><button class="btn dark" data-act="sossafe">🛡️ Aller dans un lieu sûr · Demandez Angela</button><button class="btn sec" data-act="soscall">📞 Appeler le 17 / 112</button><button class="btn ghost" data-act="closesheet">Fermer</button></div>');}
+function reportSheet(id){openSheet('<h3>Signaler</h3><p class="sub">Dis-nous ce qui ne va pas. Notre équipe regarde chaque signalement.</p><div style="display:grid;gap:8px">'+['Comportement inapproprié','Faux profil ou fausse identité','Message déplacé','Personne absente / ne s’est pas présentée','Autre'].map(function(t){return '<button class="btn sec" data-act="rep">'+t+'</button>';}).join('')+'</div>');}
+/* ====== PROPOSER UNE SORTIE ====== */
+function slots(){return [120,150,180].map(function(m){return Math.ceil((S.t+m)/15)*15;});}
+function createScr(){return function(){
+ var c=S.cr,steps=['Activité','Lieu','Heure & places','Récap'],b='<div class="prog">'+steps.map(function(x,i){return '<i class="'+(i<=c.step?'on':'')+'"></i>';}).join('')+'</div>';
+ if(c.step===0){b+='<div class="pad"><h3 style="margin:0 0 10px;font-size:19px">Tu as envie de quoi ?</h3></div><div class="grid">'+Object.keys(ACT).map(function(k){return '<button class="act '+(c.act===k?'on':'')+'" data-act="cract" data-id="'+k+'"><i>'+ACT[k].e+'</i>'+ACT[k].n+'</button>';}).join('')+'</div>';}
+ if(c.step===1){b+='<div class="pad"><h3 style="margin:0 0 4px;font-size:19px">Où ?</h3><p class="meta" style="margin:0 0 10px">Lieux publics partenaires uniquement.</p></div>'+ACT[c.act].v.map(function(k){var v=V[k];return '<div class="card tap" data-act="crv" data-id="'+k+'" style="'+(c.v===k?'border-color:var(--orange);background:#FFF8F6':'')+'"><div class="sort"><div class="emo">'+v.e+'</div><div><h4>'+esc(v.n)+'</h4><div class="meta">'+v.z+' · '+dist(v.d)+(v.pub?' · lieu public':'')+'</div>'+(v.o?'<div class="meta" style="color:var(--orange);font-weight:500">🎟️ '+v.o+'</div>':'')+'</div></div></div>';}).join('');}
+ if(c.step===2){var sl=slots();if(!c.t)c.t=sl[0];b+='<div class="pad"><h3 style="margin:0 0 4px;font-size:19px">Quand ?</h3><p class="meta" style="margin:0 0 10px">Une sortie démarre dans 2 à 3 heures : spontané, mais prévisible.</p></div><div class="row">'+sl.map(function(t,i){return '<button class="chip '+(c.t===t?'on':'')+'" data-act="crt" data-id="'+t+'" style="font-size:13px;padding:9px 11px">'+fmt(t)+' <span style="opacity:.6;font-weight:500">· '+['2 h','2 h 30','3 h'][i]+'</span></button>';}).join('')+'</div><div class="card" style="margin-top:12px"><div class="line" style="border:0"><span class="grow"><b>Nombre de places</b><small>Groupes de 3 à 6 personnes</small></span><div class="stepper"><button data-act="crmax" data-id="-1">−</button><b>'+c.max+'</b><button data-act="crmax" data-id="1">+</button></div></div></div>';}
+ if(c.step===3){var a=ACT[c.act],v=V[c.v];b+='<div class="pad"><h3 style="margin:0 0 10px;font-size:19px">On vérifie ?</h3></div><div class="card"><div class="sort"><div class="emo">'+a.e+'</div><div><h4>'+a.n+'</h4><div class="meta">'+fmt(c.t)+' · '+esc(v.n)+'</div><div class="meta">'+c.max+' places · visible par les personnes vérifiées à '+(S.radius>=4000?'Carnot ↔ Sans Souci':rLabel(S.radius))+'</div></div></div></div><div class="card"><div class="line" style="border:0"><span class="grow"><b>⚡ Mettre ma sortie en avant</b><small>Notification prioritaire pour la remplir plus vite · Azey+</small></span><button class="switch '+(c.boost&&S.plus?'on':'')+'" data-act="crboost"></button></div></div>';}
+ b+='<div class="btns" style="padding:8px 18px 0">'+(c.step>0?'<button class="btn sec" data-act="crprev">Retour</button>':'')+(c.step<3?'<button class="btn" data-act="crnext" '+((c.step===0&&!c.act)||(c.step===1&&!c.v)?'disabled':'')+'>Continuer</button>':'<button class="btn" data-act="crgo">Proposer la sortie</button>')+'</div><div style="height:30px"></div>';
+ return shell('Proposer une sortie','',b);};}
+function propose(){var c=S.cr;S.mine++;var id='m'+S.mine;S.outings.push({id:id,act:c.act,v:c.v,t:c.t,org:'me',max:c.max,j:[],m:99});S.joined[id]=true;
+ var boost=c.boost&&S.plus;closeAll();S.tab='home';S.cat='all';render();view.scrollTop=0;
+ openSheet('<div style="text-align:center"><div style="font-size:50px">🚀</div><h3>Sortie proposée !</h3><p class="sub">On prévient les personnes compatibles'+(boost?' <b>en priorité ⚡</b>':'')+' autour de '+esc(V[c.v].n)+'. Tu seras notifié·e dès que quelqu’un rejoint (simulation).</p></div><div class="btns"><button class="btn sec" data-act="closesheet">Fermer</button><button class="btn" data-act="open" data-id="'+id+'">Voir ma sortie</button></div>');
+ setTimeout(function(){var o=byId(id);if(!o||o.j.length||S.step==='ob')return;o.j.push('karim');push({tx:1,ic:'🙌',title:'Karim a rejoint ta sortie',text:'Karim, 29 ans (94 % fiable), rejoint ta sortie de '+fmt(o.t)+' : '+ACT[o.act].n.toLowerCase()+'.',id:id,btns:[['Voir','open',id]]});},boost?3500:6000);}
+function join(id,openAfter){var o=byId(id);if(S.joined[id]){if(openAfter)go(detail(id));return;}if(o.max-people(o).length<=0){toast('Cette sortie est complète');return;}
+ S.joined[id]=true;var rm=o.t-60;toast(rm>S.t?'🙌 C’est noté ! Rappel programmé à '+fmt(rm)+' (1 h avant).':'🙌 C’est noté ! Le départ est dans moins d’1 h.');
+ if(openAfter)go(detail(id));refresh();}
+/* ====== AZEY+, CERCLES, PARTENAIRE, NOTIFICATIONS ====== */
+function plusScr(){return function(){
+ var rows=[['Annonces','Petites bannières','Aucune'],['Proposer des sorties','Limité','Illimité'],['Ma sortie mise en avant','—','✓ priorité'],['Offres des lieux','Offres','Offres renforcées'],['Soirées VIP membres','—','✓'],['Sécurité (vérif., SOS, signalement)','✓ gratuit','✓ gratuit']];
+ var b='<div class="card" style="margin-top:0;background:var(--navy);color:#fff;border:0;text-align:center;padding:22px 16px"><div style="font-size:40px">⚡</div><div style="font-size:26px;font-weight:800;letter-spacing:-.8px">Azey+</div><div style="color:var(--orange);font-weight:700;font-size:22px;margin:2px 0">3,99 € / mois</div><div class="meta" style="color:#C9CCD8">Sortir plus, sans pub, avec les meilleures offres.</div></div>'+
+ '<div class="card" style="padding:4px 14px">'+['🚫|Zéro annonce|L’appli reste propre.','♾️|Propositions illimitées|Lance autant de sorties que tu veux.','📣|Ta sortie en avant|Notification prioritaire pour la remplir plus vite.','🎟️|Offres encore meilleures|Chez les lieux partenaires.','🥂|Soirées VIP membres|Organisées par Azey, réservées aux membres.'].map(function(x){var p=x.split('|');return '<div class="line"><span style="font-size:22px">'+p[0]+'</span><span class="grow"><b>'+p[1]+'</b><small>'+p[2]+'</small></span></div>';}).join('')+'</div>'+
+ '<div class="card" style="padding:6px 12px"><div style="display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:4px 8px;font-size:11.5px;align-items:center"><b></b><b style="text-align:center">Gratuit</b><b style="text-align:center;color:var(--orange)">Azey+</b>'+rows.map(function(r){return '<span style="padding:7px 0;border-top:1px solid var(--line)">'+r[0]+'</span><span style="text-align:center;border-top:1px solid var(--line);padding:7px 0;color:var(--grey)">'+r[1]+'</span><span style="text-align:center;border-top:1px solid var(--line);padding:7px 0;font-weight:600">'+r[2]+'</span>';}).join('')+'</div></div>'+
+ '<div class="pad"><div class="mini" style="background:#fff;border-radius:12px;padding:10px;margin-bottom:12px">🛡️ La sécurité reste gratuite pour tout le monde : vérification d’identité, SOS et signalement ne sont jamais derrière un abonnement.</div><button class="btn wide" data-act="'+(S.plus?'unplus':'doplus')+'">'+(S.plus?'Azey+ actif · Résilier (démo)':'Essayer Azey+ (simulation)')+'</button><p class="mini" style="text-align:center;margin-top:8px">Aucun paiement réel dans cette démo.</p></div>';
+ return shell('Azey+','',b);};
+}
+function circlesScr(){return function(){
+ var b='<div class="pad"><p class="meta" style="margin:0 0 10px;font-size:13px">Des rituels de quartier : le même rendez-vous, chaque semaine, avec des gens du coin. Tu rejoins un cercle, la sortie vient à toi.</p></div>'+CIRC.map(function(c){var on=S.circles[c.id],v=V[c.v],nx={cine:'Ce soir · 20 h 15',run:'Dim. 15 nov. · 10 h 00',quiz:'Mar. 17 nov. · 20 h 00',jeux:'Mer. 18 nov. · 19 h 30'}[c.id];
+  return '<div class="card"><div class="sort"><div class="emo">'+c.e+'</div><div style="flex:1"><h4>'+c.n+'</h4><div class="meta">'+c.w+' · '+esc(v.n)+'</div><div class="meta">'+c.k+' membres (démo) · prochaine : <b style="color:var(--navy)">'+nx+'</b></div></div></div><div class="btns">'+(c.id==='cine'?'<button class="btn sec" data-act="open" data-id="o4">Voir la sortie de ce soir</button>':'')+'<button class="btn '+(on?'sec':'')+'" data-act="circ" data-id="'+c.id+'">'+(on?'✓ Dans ce cercle':'Rejoindre')+'</button></div></div>';}).join('');
+ return shell('Cercles & rituels','',b);};}
+function partnerScr(){return function(){
+ var vis=S.visits,tot=59+vis*0.6,eur=function(x){return x.toFixed(2).replace('.',',')+' €';};
+ var pk=[['18 h',18],['19 h',34],['20 h',52],['21 h',44],['22 h',21]];
+ var b='<div class="card" style="margin-top:0"><span class="badge nv">Vue partenaire · démo</span><h4 style="font-size:18px;margin:8px 0 2px">Le Comptoir de la Manu</h4><div class="meta">Manufacture · lieu partenaire Azey</div></div>'+
+ '<div class="kpi"><div><small>Visites validées (QR) ce mois</small><b>'+vis+'</b></div><div><small>Visites à 0,60 €</small><b>'+eur(vis*0.6)+'</b></div><div><small>Abonnement</small><b>59 €/mois</b></div><div><small>Total du mois</small><b style="color:var(--orange)">'+eur(tot)+'</b></div></div>'+
+ '<h2 class="s">Quand viennent les groupes ?</h2><div class="card">'+pk.map(function(p){return '<div style="display:flex;align-items:center;gap:10px;margin:6px 0;font-size:12px"><span style="width:34px;color:var(--grey)">'+p[0]+'</span><div class="bar2" style="flex:1"><i style="width:'+p[1]+'%"></i></div><b style="width:26px;text-align:right">'+p[1]+'</b></div>';}).join('')+'</div>'+
+ '<h2 class="s">Mes offres</h2><div class="card" style="padding:4px 14px"><div class="line"><span class="grow"><b>'+V.comptoir.o+'</b><small>Visible de tous · portée sur l’addition</small></span><button class="switch on" data-act="tg"></button></div><div class="line"><span class="grow"><b>'+V.comptoir.p+'</b><small>Réservée aux membres Azey+</small></span><button class="switch on" data-act="tg"></button></div></div><div class="btns" style="padding:0 18px"><button class="btn sec" data-act="toast" data-id="Création d’offre (démo)">+ Créer une offre</button></div>'+
+ '<div class="card" style="margin-top:12px"><b>🎉 Sortie signature</b><div class="meta">Un événement co-organisé avec Azey et une marque : 400 € par événement.</div><div class="btns"><button class="btn dark" data-act="toast" data-id="Demande envoyée (démo)">Demander</button></div></div><div class="mini" style="padding:0 22px 24px">Chiffres de démonstration. Tarifs : 59 €/mois + 0,60 € par visite validée par QR code. Le compteur monte quand tu valides un check-in dans l’appli.</div>';
+ return shell('Espace partenaire','',b);};}
+function notifScr(){return function(){
+ var b='<div class="pad"><div class="mini" style="margin-bottom:10px">Plafond : <b>'+S.cap+' notifications de découverte par jour</b> (réglable dans Moi) · reçues aujourd’hui : '+S.pushToday+'. Les rappels et les alertes de sécurité ne comptent pas.</div></div>';
+ if(!S.notifs.length)b+='<div class="card"><div class="meta">Rien pour l’instant. Active le mode dispo ou touche « Simuler une notification » dans la démo.</div></div>';
+ S.notifs.forEach(function(n){b+='<div class="card '+(n.id?'tap':'')+'" '+(n.id?'data-act="open" data-id="'+n.id+'"':'')+'><div class="sort"><div class="emo" style="width:40px;height:40px;font-size:20px">'+n.ic+'</div><div><b style="font-size:13.5px">'+n.title+'</b><div class="meta">'+n.text+'</div><div class="mini">'+fmt(n.t)+'</div></div></div></div>';});
+ return shell('Notifications','',b);};}
+function adSheet(){openSheet('<h3>Annonce</h3><p class="sub">'+(S.cAds?'Tu vois cette annonce parce que tu as accepté les offres ciblées. Tu peux changer d’avis dans Moi › Réglages.':'Annonce non personnalisée : tu n’as pas activé les offres ciblées.')+' Les annonces sont petites, repérables, jamais en plein écran, et jamais dans le chat, le SOS ou les sorties.</p><div class="btns"><button class="btn sec" data-act="closesheet">Fermer</button><button class="btn" data-act="plus2">Retirer avec Azey+</button></div>');}
+/* ====== SIMULATION DE NOTIFICATIONS ====== */
+function simulate(){
+ if(S.step==='ob'){toast('Passe d’abord l’inscription (ou « Passer l’inscription »)');return;}
+ var firstJ=null;S.outings.forEach(function(o){if(!firstJ&&S.joined[o.id]&&!S.checked[o.id])firstJ=o;});var firstC=null;S.outings.forEach(function(o){if(!firstC&&S.checked[o.id]&&!S.homeDone[o.id])firstC=o;});
+ var L=[
+  function(){var o=byId('o2');return S.joined.o2?null:{title:'Sarah propose des jeux de société',text:'Sarah propose des jeux de société ce soir à 19 h 45, à 450 m. Il reste '+(o.max-people(o).length)+' places. Tu en es ?',btns:[['Je viens','join','o2'],['Pas ce soir','dismiss']],id:'o2'};},
+  function(){return S.joined.o4?null:{ic:'🎬',title:'Jeudi ciné',text:'Jeudi ciné : Inès propose la séance de 20 h 15 au Ciné Sans Souci. 2 personnes de ton cercle y vont.',btns:[['Je viens','join','o4'],['Pas ce soir','dismiss']],id:'o4'};},
+  function(){return S.joined.o3?null:{title:'Tu es dispo ?',text:'Karim monte un quiz / blind test ce soir à 20 h 00, à 850 m. 3 personnes vérifiées, il reste 3 places.',btns:[['Je viens','join','o3'],['Pas ce soir','dismiss']],id:'o3'};},
+  function(){return firstJ?{tx:1,ic:'⏰',title:'Rappel · dans 1 h',text:ACT[firstJ.act].n+' · '+esc(V[firstJ.v].n)+', '+fmtH(firstJ.t)+'. '+(people(firstJ).length-1)+' personne(s) vérifiée(s) y vont.',btns:[['Voir la sortie','open',firstJ.id]],id:firstJ.id}:null;},
+  function(){return S.cAds?{ic:'🎟️',title:'Offre près de toi',text:'−15 % sur l’addition au Comptoir de la Manu ce soir, pour les groupes Azey.',btns:[['Voir','seeoffers']]}:null;},
+  function(){return firstC?{tx:1,ic:'🏠',title:'Bien rentré·e ?',text:'La sortie est terminée. Dis-nous si tout s’est bien passé.',btns:[['Oui, bien rentré·e','homeyes',firstC.id],['Plus tard','dismiss']],id:firstC.id}:null;}
+ ];
+ for(var i=0;i<L.length;i++){var k=(S.sim+i)%L.length,p=L[k]();if(p){S.sim=k+1;push(p);return;}}
+ toast('Plus rien à simuler : tu as tout essayé 🎉');
+}
+/* ====== PRÉSENTATION ====== */
+/* ====== Générateur de QR code (mode octets, correction M, versions 1-10) ====== */
+function azeyQR(text){
+  var ECC=[-1,10,16,26,18,24,16,18,22,22,26],BLK=[-1,1,1,1,2,2,4,4,4,5,5];
+  var bytes=unescape(encodeURIComponent(text)).split('').map(function(c){return c.charCodeAt(0);});
+  function raw(v){var r=(16*v+128)*v+64;if(v>=2){var n=Math.floor(v/7)+2;r-=(25*n-10)*n-55;if(v>=7)r-=36;}return r;}
+  var ver,cap,i,j,x,y;
+  for(ver=1;ver<=10;ver++){cap=Math.floor(raw(ver)/8)-ECC[ver]*BLK[ver];if(4+(ver<10?8:16)+bytes.length*8<=cap*8)break;}
+  if(ver>10)return '';
+  var bits=[];
+  function put(v,n){for(var k=n-1;k>=0;k--)bits.push((v>>>k)&1);}
+  put(4,4);put(bytes.length,ver<10?8:16);bytes.forEach(function(b){put(b,8);});
+  put(0,Math.min(4,cap*8-bits.length));
+  while(bits.length%8)bits.push(0);
+  for(var pad=0xEC;bits.length<cap*8;pad^=0xEC^0x11)put(pad,8);
+  var data=[];
+  for(i=0;i<bits.length;i+=8){var by=0;for(j=0;j<8;j++)by=(by<<1)|bits[i+j];data.push(by);}
+  function mul(a,b){var z=0;for(var k=7;k>=0;k--){z=(z<<1)^((z>>>7)*0x11D);z^=((b>>>k)&1)*a;}return z;}
+  function rsDiv(d){var r=[];for(var a=0;a<d-1;a++)r.push(0);r.push(1);var root=1;
+    for(var a2=0;a2<d;a2++){for(var b=0;b<d;b++){r[b]=mul(r[b],root);if(b+1<d)r[b]^=r[b+1];}root=mul(root,2);}return r;}
+  function rsRem(dat,div){var r=div.map(function(){return 0;});
+    dat.forEach(function(b){var f=b^r.shift();r.push(0);div.forEach(function(c,k){r[k]^=mul(c,f);});});return r;}
+  var nb=BLK[ver],el=ECC[ver],rc=Math.floor(raw(ver)/8),ns=nb-rc%nb,sl=Math.floor(rc/nb),div=rsDiv(el),blocks=[],k0=0;
+  for(i=0;i<nb;i++){var dat=data.slice(k0,k0+sl-el+(i<ns?0:1));k0+=dat.length;var ecc=rsRem(dat,div);if(i<ns)dat.push(0);blocks.push(dat.concat(ecc));}
+  var all=[];
+  for(i=0;i<blocks[0].length;i++)blocks.forEach(function(b,jj){if(i!=sl-el||jj>=ns)all.push(b[i]);});
+  var size=ver*4+17,M=[],F=[];
+  for(i=0;i<size;i++){M.push([]);F.push([]);for(j=0;j<size;j++){M[i].push(false);F[i].push(false);}}
+  function setF(px,py,d){M[py][px]=d;F[py][px]=true;}
+  for(i=0;i<size;i++){setF(6,i,i%2==0);setF(i,6,i%2==0);}
+  function finder(cx,cy){for(var dy=-4;dy<=4;dy++)for(var dx=-4;dx<=4;dx++){var dist=Math.max(Math.abs(dx),Math.abs(dy)),xx=cx+dx,yy=cy+dy;
+    if(xx>=0&&xx<size&&yy>=0&&yy<size)setF(xx,yy,dist!=2&&dist!=4);}}
+  finder(3,3);finder(size-4,3);finder(3,size-4);
+  var na=ver>1?Math.floor(ver/7)+2:0,pos=[];
+  if(na){var step=Math.ceil((ver*4+4)/(na*2-2))*2;pos=[6];for(var p=size-7;pos.length<na;p-=step)pos.splice(1,0,p);}
+  for(i=0;i<na;i++)for(j=0;j<na;j++){
+    if((i==0&&j==0)||(i==0&&j==na-1)||(i==na-1&&j==0))continue;
+    for(var dy=-2;dy<=2;dy++)for(var dx=-2;dx<=2;dx++)setF(pos[i]+dx,pos[j]+dy,Math.max(Math.abs(dx),Math.abs(dy))!=1);
+  }
+  function fmt(mask){
+    var d=mask,r=d;for(var a=0;a<10;a++)r=(r<<1)^((r>>>9)*0x537);
+    var b=((d<<10)|r)^0x5412;function g(n){return ((b>>>n)&1)!=0;}
+    for(var a2=0;a2<=5;a2++)setF(8,a2,g(a2));
+    setF(8,7,g(6));setF(8,8,g(7));setF(7,8,g(8));
+    for(var a3=9;a3<15;a3++)setF(14-a3,8,g(a3));
+    for(var a4=0;a4<8;a4++)setF(size-1-a4,8,g(a4));
+    for(var a5=8;a5<15;a5++)setF(8,size-15+a5,g(a5));
+    setF(8,size-8,true);
+  }
+  fmt(0);
+  if(ver>=7){var vr=ver;for(i=0;i<12;i++)vr=(vr<<1)^((vr>>>11)*0x1F25);var vb=(ver<<12)|vr;
+    for(i=0;i<18;i++){var bt=((vb>>>i)&1)!=0,a=size-11+i%3,b=Math.floor(i/3);setF(a,b,bt);setF(b,a,bt);}}
+  var n=0;
+  for(var right=size-1;right>=1;right-=2){
+    if(right==6)right=5;
+    for(var vert=0;vert<size;vert++)for(j=0;j<2;j++){
+      x=right-j;y=((right+1)&2)==0?size-1-vert:vert;
+      if(!F[y][x]&&n<all.length*8){M[y][x]=((all[n>>>3]>>>(7-(n&7)))&1)!=0;n++;}
+    }
+  }
+  function applyMask(m){
+    for(y=0;y<size;y++)for(x=0;x<size;x++){
+      var inv;
+      switch(m){
+        case 0:inv=(x+y)%2==0;break;
+        case 1:inv=y%2==0;break;
+        case 2:inv=x%3==0;break;
+        case 3:inv=(x+y)%3==0;break;
+        case 4:inv=(Math.floor(x/3)+Math.floor(y/2))%2==0;break;
+        case 5:inv=x*y%2+x*y%3==0;break;
+        case 6:inv=(x*y%2+x*y%3)%2==0;break;
+        default:inv=((x+y)%2+x*y%3)%2==0;
+      }
+      if(!F[y][x]&&inv)M[y][x]=!M[y][x];
+    }
+  }
+  function penalty(){
+    var pn=0,dark=0,lines=[],s;
+    for(var r=0;r<size;r++){s='';for(var c=0;c<size;c++){s+=M[r][c]?'1':'0';if(M[r][c])dark++;}lines.push(s);}
+    for(var c2=0;c2<size;c2++){s='';for(var r2=0;r2<size;r2++)s+=M[r2][c2]?'1':'0';lines.push(s);}
+    lines.forEach(function(l){
+      var run=1,q;
+      for(q=1;q<=size;q++){if(q<size&&l[q]==l[q-1])run++;else{if(run>=5)pn+=run-2;run=1;}}
+      for(q=0;q+11<=size;q++){var t=l.substr(q,11);if(t=='10111010000'||t=='00001011101')pn+=40;}
+    });
+    for(var r3=0;r3<size-1;r3++)for(var c3=0;c3<size-1;c3++){var v=M[r3][c3];if(v==M[r3][c3+1]&&v==M[r3+1][c3]&&v==M[r3+1][c3+1])pn+=3;}
+    var tot=size*size;pn+=(Math.ceil(Math.abs(dark*20-tot*10)/tot)-1)*10;
+    return pn;
+  }
+  var best=0,bp=1e9;
+  for(var m=0;m<8;m++){applyMask(m);fmt(m);var pp=penalty();if(pp<bp){bp=pp;best=m;}applyMask(m);}
+  applyMask(best);fmt(best);
+  var d='';
+  for(y=0;y<size;y++){x=0;while(x<size){if(M[y][x]){var s0=x;while(x<size&&M[y][x])x++;d+='M'+s0+' '+y+'h'+(x-s0)+'v1h-'+(x-s0)+'z';}else x++;}}
+  var t=size+8;
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 '+t+' '+t+'" shape-rendering="crispEdges" role="img" aria-label="QR code vers l\'application Azey"><rect x="-4" y="-4" width="'+t+'" height="'+t+'" fill="#fff"/><path d="'+d+'" fill="#14162A"/></svg>';
+}
+var APPURL=/^https?:$/.test(location.protocol)?location.origin+location.pathname:'',QRSVG=APPURL?azeyQR(APPURL):'';
+var FEATS=[
+ ['ob','🪪','Inscription vérifiée','Pièce + selfie, 18+, consentements séparés','V1'],
+ ['create','➕','Proposer une sortie','20 activités, lieu partenaire, 3 à 6 places','V1'],
+ ['notif','🔔','Notification en 2 boutons','« Je viens » ou « Pas ce soir »','V1'],
+ ['map','🗺️','Carte des sorties','Rayon réglable, Carnot ↔ Sans Souci','V1'],
+ ['qr','📷','Check-in par QR code','Valide la présence, débloque l’offre','V1'],
+ ['report','🚩','Signalement','En deux touches','V1'],
+ ['sos','🆘','Bouton SOS','Lieux sûrs « Demandez Angela »','V1'],
+ ['home','🏠','« Bien rentré ? »','Notation bienveillante','V1'],
+ ['join','🤝','Rejoindre une sortie','Personnes vérifiées, groupe de 3 à 6','V2'],
+ ['dispo','✅','Mode dispo','On te prévient dès que ça se monte','V2'],
+ ['match','✨','Recommandations','Matching intelligent « Pour toi »','V2'],
+ ['score','🏅','Score de fiabilité & badges','Ponctualité, bienveillance','V2'],
+ ['chat','💬','Chat éphémère','Il disparaît après la sortie','V2'],
+ ['offers','🎟️','Offres exclusives','Chez les lieux partenaires','V2'],
+ ['partner','🏪','Tableau de bord partenaire','Visites validées par QR','V2'],
+ ['circles','🔁','Cercles & rituels','Jeudi ciné, dimanche running','V3'],
+ ['plus','⚡','Azey+','3,99 €/mois : sans annonce, VIP, mise en avant','V3'],
+ ['sig','🎉','Sorties signature','Événements co-organisés avec des marques','V3'],
+ ['ads','📣','Annonces discrètes','Petites, repérables, jamais plein écran','Revenu'],
+ ['campus','🎓','Azey Campus & Entreprise','Annoncé dans « Moi »','V3']
+];
+function pitchHtml(ov){
+ var h=(ov?'<button class="btn sec sm" data-act="pitchclose" style="margin-bottom:12px">← Retour à l’appli</button>':'')+
+ '<div class="brand">'+tile(40)+'azey</div><h1>Sors <b>maintenant.</b></h1>'+
+ '<p class="lead">Azey transforme « je m’ennuie ce soir » en une vraie sortie : des personnes vérifiées, près de chez toi, dans des lieux publics partenaires. <b>À côté, c’est l’application elle-même</b> : touche, scrolle, essaie.</p>'+
+ '<div class="steps"><div class="step"><b>1</b><span>Une envie : tu proposes une sortie ou tu passes en mode dispo.</span></div><div class="step"><b>2</b><span>Une notification en deux boutons aux personnes compatibles proches.</span></div><div class="step"><b>3</b><span>Une sortie dans un lieu partenaire. Le QR valide et débloque l’offre.</span></div></div>'+
+ '<div class="seg"><button data-act="simulate">🔔 Simuler une notification</button><button data-act="reset">↺ Recommencer</button></div>'+
+ '<h3>Essaie chaque fonctionnalité <span style="text-transform:none;letter-spacing:0;color:var(--grey);font-weight:500">(un clic t’emmène dedans)</span></h3><div class="feat">'+
+ FEATS.map(function(f){var c=f[4]==='V1'?'v1':(f[4]==='V2'?'v2':'v3');return '<button data-act="demo" data-id="'+f[0]+'"><i>'+f[1]+'</i><span><b>'+f[2]+'</b><small>'+f[3]+'</small><span class="tag '+c+'" style="margin:3px 0 0;display:inline-block">'+f[4]+'</span></span></button>';}).join('')+'</div>'+
+ '<div class="mini" style="margin-top:8px"><span class="tag v1">V1</span>MVP <span class="tag v2">V2</span>version 2 <span class="tag v3">V3</span>version 3 : la démo les réunit toutes.</div>'+
+ (ov?'':'<h3>Ouvrir sur ton téléphone</h3><div class="qrcard"><div class="qr">'+(QRSVG.indexOf('<svg')===0?QRSVG:'<span style="color:#14162A;font-size:11px;text-align:center">QR code indisponible</span>')+'</div><div><b>Scanne, c’est ouvert.</b><p>Appareil photo → QR code. L’appli s’affiche en plein écran, comme sur un vrai téléphone.</p><p style="margin-top:6px;font-size:10.5px;word-break:break-all;color:#9094AA">'+(APPURL.indexOf('http')===0?APPURL:'')+'</p></div></div>')+
+ '<h3>Comment Azey gagne sa vie</h3><div class="biz"><div><b>Gratuit</b>pour les utilisateurs</div><div><b>3,99 €/mois</b>Azey+ : sans annonce, VIP</div><div><b>59 €/mois + 0,60 €</b>par visite validée (partenaire)</div><div><b>400 €</b>par sortie signature</div></div>'+
+ '<p class="note">Démo non contractuelle : lieux, personnes, offres et chiffres sont fictifs. Plan schématique, distances indicatives. Offres sur l’addition ou l’activité, jamais sur l’alcool ; l’abus d’alcool est dangereux pour la santé. Azey est réservé aux 18 ans et plus.</p>';
+ return h;
+}
+/* ====== ACTIONS ====== */
+function pushOuting(id){var o=byId(id),u=U[o.org];push({title:u.n+' propose une sortie',text:u.n+' propose '+ACT[o.act].s+' ce soir à '+fmtH(o.t)+', à '+dist(V[o.v].d)+'. Tu en es ?',btns:[['Je viens','join',id],['Pas ce soir','dismiss']],id:id});}
+function startApp(){S.step='app';S.ob=0;S.tab='home';render();view.scrollTop=0;setTimeout(function(){if(S.step==='app'&&!S.fp){S.fp=1;pushOuting('o1');}},6000);}
+function ensure(){document.getElementById('overlay').classList.remove('show');if(S.step==='ob'){S.charte=true;S.id1=S.id2=2;S.fp=1;S.step='app';S.ob=0;}closeAll();}
+function jump(tab,sc){S.tab=tab;S.mapSel=null;render();view.scrollTop=sc||0;}
+var A={
+ tab:function(d){S.tab=d.id;if(d.id!=='map'){S.mapSel=null;S.safeOnly=false;}render();view.scrollTop=0;},
+ back:back,closesheet:closeSheet,
+ cat:function(d){S.cat=d.id;render();},
+ radius:function(d){S.radius=+d.id;render();},
+ safe:function(){S.safeOnly=!S.safeOnly;S.mapSel=null;render();},
+ pin:function(d){S.mapSel=S.mapSel===d.id?null:d.id;render();},
+ open:function(d){closeSheet();var t=S.stack[S.stack.length-1];if(t&&t.k==='d'+d.id){refresh();return;}go(detail(d.id));},
+ join:function(d){var t=S.stack[S.stack.length-1];join(d.id,!(t&&t.k==='d'+d.id));},
+ nope:function(){back();toast('OK, on te proposera autre chose ✌️');},
+ dismiss:function(){toast('OK, on te proposera autre chose ✌️');},
+ dispo:function(){S.dispo=!S.dispo;render();if(S.dispo){toast('✅ Tu es dispo : on te prévient dès qu’une sortie se monte');setTimeout(function(){if(S.dispo&&!S.joined.o3)pushOuting('o3');},3500);}},
+ ad:adSheet,
+ plus:function(){go(plusScr());},plus2:function(){closeSheet();go(plusScr());},
+ doplus:function(){S.plus=true;toast('⚡ Azey+ activé : plus aucune annonce');refresh();},
+ unplus:function(){S.plus=false;toast('Azey+ résilié (démo)');refresh();},
+ notifs:function(){S.unread=0;go(notifScr());render();},
+ circles:function(){go(circlesScr());},
+ circ:function(d){if(S.circles[d.id]){delete S.circles[d.id];toast('Tu as quitté le cercle');}else{S.circles[d.id]=1;toast('✓ Cercle rejoint : tu recevras ses rituels');}refresh();},
+ partner:function(){go(partnerScr());},
+ invite:function(){toast('Code de parrainage copié (démo) : invite des amis vérifiés');},
+ tg:function(d,el){el.classList.toggle('on');},
+ toast:function(d){toast(d.id);},
+ vip:function(){if(S.plus)toast('🥂 Tu es inscrit·e à la soirée VIP (démo)');else go(plusScr());},
+ sig:function(){toast('🎉 Tu es sur la liste de la soirée jeux Fresh’Up × Azey (démo)');},
+ report:function(d){reportSheet(d.id);},
+ rep:function(){closeSheet();toast('Merci, signalement envoyé. Notre équipe l’examine.');},
+ sos:sosSheet,
+ sosshare:function(){closeSheet();toast('Simulation : un proche est prévenu avec ta position');},
+ soscall:function(){closeSheet();toast('Simulation : appel du 17 (Police) / 112 (urgences)');},
+ sossafe:function(){closeAll();S.tab='map';S.safeOnly=true;S.mapSel=null;render();view.scrollTop=0;toast('🛡️ Lieux Demandez Angela les plus proches');},
+ chat:function(d){go(chatScr(d.id));},send:function(d){sendMsg(d.id);},
+ checkin:function(d){checkinSheet(d.id);},
+ scan:function(d,el){el.disabled=true;el.textContent='Scan en cours…';setTimeout(function(){scanDone(d.id);},1500);},
+ seeoffers:function(){closeAll();S.tab='offers';render();view.scrollTop=0;},
+ homeok:function(d){if(S.homeDone[d.id])ratingSheet(d.id);else homeSheet(d.id);},
+ homeyes:function(d){S.homeDone[d.id]=true;ratingSheet(d.id);refresh();},
+ tag:function(d,el){el.classList.toggle('on');},
+ sendrate:function(d){S.rated[d.id]=true;S.trust=Math.min(99,S.trust+1);S.badges.kind=true;closeSheet();toast('Merci ! Ton score de fiabilité passe à '+S.trust+' % · badge Bienveillant·e');refresh();},
+ remind:function(d){var o=byId(d.id),r=o.t-60;if(S.t<r)advance(r-S.t);push({tx:1,ic:'⏰',title:'Rappel · dans 1 h',text:ACT[o.act].n+' · '+esc(V[o.v].n)+', '+fmtH(o.t)+'. '+(people(o).length-1)+' personne(s) vérifiée(s) y vont.',id:o.id,btns:[['Voir la sortie','open',o.id]]});},
+ create:function(d){var k=d.id,a=null;if(k)Object.keys(ACT).forEach(function(x){if(!a&&ACT[x].v.indexOf(k)>-1)a=x;});S.cr={step:a?2:0,act:a,v:k||null,max:4,t:null,boost:false};go(createScr());},
+ cract:function(d){S.cr.act=d.id;S.cr.v=ACT[d.id].v[0];refresh();},
+ crv:function(d){S.cr.v=d.id;refresh();},
+ crt:function(d){S.cr.t=+d.id;refresh();},
+ crmax:function(d){S.cr.max=Math.max(3,Math.min(6,S.cr.max+(+d.id)));refresh();},
+ crboost:function(){if(!S.plus){go(plusScr());return;}S.cr.boost=!S.cr.boost;refresh();},
+ crnext:function(){S.cr.step++;refresh();},crprev:function(){S.cr.step--;refresh();},
+ crgo:propose,
+ cons:function(d){if(d.id==='find'){S.cFind=!S.cFind;if(!S.cFind&&S.step==='app')toast('Sans position, Azey ne peut plus te proposer de sorties');}else S.cAds=!S.cAds;if(S.step==='app'&&d.id==='ads')toast(S.cAds?'Offres ciblées activées':'Offres ciblées désactivées');refresh();},
+ charte:function(){S.charte=!S.charte;render();},
+ intr:function(d){if(S.interests[d.id])delete S.interests[d.id];else S.interests[d.id]=1;render();},
+ idstep:function(d){var k='id'+d.id;if(S[k])return;S[k]=1;render();setTimeout(function(){S[k]=2;render();},1100);},
+ obnext:function(){S.ob++;render();view.scrollTop=0;},
+ obskip:function(){S.charte=true;S.id1=S.id2=2;startApp();},
+ obdone:startApp,
+ delete:function(){openSheet('<h3 style="color:#C8321E">Supprimer mon compte ?</h3><p class="sub">Tes données, tes sorties et tes badges seront effacés. (Simulation)</p><div class="btns"><button class="btn sec" data-act="closesheet">Annuler</button><button class="btn" style="background:#C8321E" data-act="reset">Supprimer</button></div>');},
+ simulate:function(){document.getElementById('overlay').classList.remove('show');simulate();},
+ reset:function(){document.getElementById('overlay').classList.remove('show');S=fresh();closeAll();hidePush();document.getElementById('clock').textContent=fmt(S.t);render();view.scrollTop=0;},
+ pitch:function(){var o=document.getElementById('overlay');o.innerHTML=pitchHtml(true);o.classList.add('show');o.scrollTop=0;},
+ pitchclose:function(){document.getElementById('overlay').classList.remove('show');},
+ demo:function(d){var k=d.id;
+  if(k==='ob'){document.getElementById('overlay').classList.remove('show');S=fresh();S.ob=1;closeAll();hidePush();render();return;}
+  ensure();
+  if(k==='notif'){simulate();}
+  else if(k==='create'){A.create({});}
+  else if(k==='map'){S.safeOnly=false;jump('map');}
+  else if(k==='qr'){join('o1');go(detail('o1'));checkinSheet('o1');}
+  else if(k==='report'){go(detail('o1'));reportSheet('o1');}
+  else if(k==='sos'){sosSheet();}
+  else if(k==='home'){join('o1');if(!S.checked.o1){S.checked.o1=true;S.unlocked.comptoir=true;S.visits++;}go(detail('o1'));homeSheet('o1');}
+  else if(k==='join'){go(detail('o1'));}
+  else if(k==='dispo'){S.dispo=true;S.cat='all';jump('home');toast('✅ Mode dispo activé');setTimeout(function(){if(S.dispo&&!S.joined.o3)pushOuting('o3');},3500);}
+  else if(k==='match'){S.cat='me';jump('home');}
+  else if(k==='score'){jump('me');}
+  else if(k==='chat'){join('o1');go(detail('o1'));go(chatScr('o1'));}
+  else if(k==='offers'){jump('offers');}
+  else if(k==='partner'){go(partnerScr());}
+  else if(k==='circles'){go(circlesScr());}
+  else if(k==='plus'){go(plusScr());}
+  else if(k==='sig'){S.cat='all';jump('home',99999);}
+  else if(k==='ads'){S.plus=false;S.cat='all';jump('home');var ad=view.querySelector('.ad');if(ad)view.scrollTop=ad.offsetTop-160;}
+  else if(k==='campus'){jump('me',99999);}
+ }
+};
+document.addEventListener('click',function(e){
+ var el=e.target.closest&&e.target.closest('[data-act]');if(!el)return;
+ var fn=A[el.getAttribute('data-act')];if(!fn)return;
+ if(el.disabled)return;
+ if(el.closest('#push'))hidePush();
+ fn({id:el.getAttribute('data-id')},el);
+});
+document.addEventListener('input',function(e){var t=e.target,k=t.getAttribute&&t.getAttribute('data-in');if(!k)return;
+ if(k==='name'){S.name=t.value;var b=document.querySelector('[data-act="obdone"]');if(b)b.disabled=!(Object.keys(S.interests).length>=3&&S.name.trim());}
+ if(k==='radius'){S.radius=RADII[+t.value];var r=document.getElementById('rv');if(r)r.textContent=rLabel(S.radius);}
+ if(k==='cap'){S.cap=+t.value;var c=document.getElementById('cv');if(c)c.textContent=S.cap+' maximum (réglable)';}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&e.target.id==='chatin'){e.preventDefault();sendMsg(e.target.getAttribute('data-id'));}});
+document.getElementById('pitch').innerHTML=pitchHtml(false);
+render();
+})();
+</script>
+</body>
+</html>
